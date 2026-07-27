@@ -221,8 +221,39 @@ class Guru extends BaseController
     /**
      * Unduh template Excel kosong untuk diisi lalu diimpor kembali.
      */
+    /**
+     * Pasang dropdown pilihan pada satu kolom, dari baris 2 sampai $sampaiBaris.
+     * Sengaja diterapkan SATU SEL SATU SEL (bukan sintaks range sekaligus) supaya
+     * kompatibel di semua versi PhpSpreadsheet, tidak cuma versi terbaru.
+     * $wajib=true -> Excel menolak nilai di luar daftar (dipaksa).
+     * $wajib=false -> dropdown cuma tampil sebagai saran, nilai lain tetap diterima
+     * (dipakai untuk kolom yang boleh diisi lebih dari satu nilai dipisah koma).
+     */
+    private function pasangDropdown($sheet, string $kolom, int $sampaiBaris, string $daftarKoma, bool $wajib): void
+    {
+        for ($baris = 2; $baris <= $sampaiBaris; $baris++) {
+            $validation = $sheet->getCell($kolom . $baris)->getDataValidation();
+            $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
+            $validation->setAllowBlank(true);
+            $validation->setShowDropDown(true);
+            $validation->setShowInputMessage(true);
+            $validation->setShowErrorMessage($wajib);
+            $validation->setPromptTitle('Pilih dari daftar');
+            $validation->setPrompt('Klik sel ini lalu pilih dari daftar yang muncul.');
+            $validation->setErrorTitle('Nilai tidak valid');
+            $validation->setError('Silakan pilih salah satu dari daftar yang tersedia.');
+            $validation->setFormula1('"' . $daftarKoma . '"');
+        }
+    }
+
     public function downloadTemplate()
     {
+        $roleTambahan = array_column(
+            (new RoleModel())->where('slug !=', 'guru')->findAll(),
+            'slug'
+        );
+
         $spreadsheet = new Spreadsheet();
         $sheet       = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Guru');
@@ -241,6 +272,17 @@ class Guru extends BaseController
         foreach (range('A', 'I') as $col) {
             $sheet->getColumnDimension($col)->setWidth(22);
         }
+
+        // Dropdown Jenis Kelamin (kolom C, baris 2-200) — dipaksa, cuma boleh L atau P.
+        $this->pasangDropdown($sheet, 'C', 200, 'L,P', true);
+
+        // Dropdown Role Tambahan (kolom I, baris 2-200) — cuma SARAN, tidak dipaksa, karena
+        // kolom ini boleh diisi lebih dari satu role dipisah koma (mis. wali_kelas,operator)
+        // dan dropdown Excel murni tidak bisa memvalidasi banyak nilai sekaligus.
+        if (! empty($roleTambahan)) {
+            $this->pasangDropdown($sheet, 'I', 200, implode(',', $roleTambahan), false);
+        }
+
         $writer = new Xlsx($spreadsheet);
 
         return $this->streamXlsx($writer, 'template_import_guru.xlsx');

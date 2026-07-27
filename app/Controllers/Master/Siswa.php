@@ -92,8 +92,36 @@ class Siswa extends BaseController
         return redirect()->to('/master/siswa')->with('message', 'Data siswa berhasil dihapus.');
     }
 
+    /**
+     * Pasang dropdown pilihan pada satu kolom, dari baris 2 sampai $sampaiBaris.
+     * Diterapkan satu sel satu sel supaya kompatibel di semua versi PhpSpreadsheet.
+     * $wajib=true -> Excel menolak nilai di luar daftar (dipaksa).
+     */
+    private function pasangDropdown($sheet, string $kolom, int $sampaiBaris, string $daftarKoma, bool $wajib): void
+    {
+        for ($baris = 2; $baris <= $sampaiBaris; $baris++) {
+            $validation = $sheet->getCell($kolom . $baris)->getDataValidation();
+            $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
+            $validation->setAllowBlank(true);
+            $validation->setShowDropDown(true);
+            $validation->setShowInputMessage(true);
+            $validation->setShowErrorMessage($wajib);
+            $validation->setPromptTitle('Pilih dari daftar');
+            $validation->setPrompt('Klik sel ini lalu pilih dari daftar yang muncul.');
+            $validation->setErrorTitle('Nilai tidak valid');
+            $validation->setError('Silakan pilih salah satu dari daftar yang tersedia.');
+            $validation->setFormula1('"' . $daftarKoma . '"');
+        }
+    }
+
     public function downloadTemplate()
     {
+        $tahunAktif   = (new TahunAjaranModel())->getActive();
+        $daftarKelas  = $tahunAktif
+            ? array_column((new KelasModel())->where('tahun_ajaran_id', $tahunAktif['id'])->findAll(), 'nama_kelas')
+            : [];
+
         $spreadsheet = new Spreadsheet();
         $sheet       = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Siswa');
@@ -107,6 +135,16 @@ class Siswa extends BaseController
         $sheet->getStyle('A1:H1')->getFont()->setBold(true);
         foreach (range('A', 'H') as $col) {
             $sheet->getColumnDimension($col)->setWidth(20);
+        }
+
+        // Dropdown Jenis Kelamin (kolom C) — dipaksa, cuma boleh L atau P.
+        $this->pasangDropdown($sheet, 'C', 500, 'L,P', true);
+
+        // Dropdown Kelas (kolom D) — daftar dari kelas pada tahun ajaran AKTIF saat ini.
+        // Tidak dipaksa (siswa tetap tersimpan tanpa kelas kalau kosong/tidak cocok),
+        // supaya import tidak gagal total hanya gara-gara satu ketikan nama kelas meleset.
+        if (! empty($daftarKelas)) {
+            $this->pasangDropdown($sheet, 'D', 500, implode(',', $daftarKelas), false);
         }
 
         $writer = new Xlsx($spreadsheet);

@@ -16,7 +16,10 @@
 
 <div class="toolbar">
   <input type="text" class="toolbar-search" placeholder="Cari guru, kelas, atau mapel..." oninput="filterTable(this.value, 'tabelJadwal')">
-  <button type="button" class="btn btn-primary" onclick="openModal('modalTambah')"><svg class="icon-sm" style="stroke:#fff"><use href="#i-plus"/></svg> Tambah jadwal</button>
+  <div style="display:flex;gap:8px">
+    <button type="button" class="btn btn-outline" onclick="openModal('modalImport')"><svg class="icon-sm"><use href="#i-upload"/></svg> Import Excel</button>
+    <button type="button" class="btn btn-primary" onclick="openModal('modalTambah')"><svg class="icon-sm" style="stroke:#fff"><use href="#i-plus"/></svg> Tambah jadwal</button>
+  </div>
 </div>
 
 <div class="table-wrap">
@@ -191,6 +194,33 @@
       <div class="modal-actions">
         <button type="button" class="btn btn-outline" onclick="closeModal('modalEdit')">Batal</button>
         <button type="submit" class="btn btn-primary">Simpan perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Import Excel -->
+<div class="modal" id="modalImport">
+  <div class="modal-box">
+    <h3>Import jadwal dari Excel</h3>
+    <p class="text-muted" style="font-size:13px">
+      Unduh template — semua kolom (Guru, Mata Pelajaran, Kelas, Hari, Jam Ke) sudah berupa
+      dropdown, tinggal klik sel lalu pilih, tidak perlu mengetik manual. Isi satu baris untuk
+      setiap jadwal, lalu unggah kembali. Setiap baris tetap dicek bentrok guru &amp; kelas
+      persis seperti tambah manual — baris yang bentrok akan dilewati dengan keterangan jelas.
+    </p>
+    <p style="margin-bottom:16px">
+      <a href="<?= base_url('master/jadwal/template') ?>" class="btn btn-outline btn-sm"><svg class="icon-sm"><use href="#i-download"/></svg> Unduh template Excel</a>
+    </p>
+    <form method="post" action="<?= base_url('master/jadwal/import') ?>" enctype="multipart/form-data">
+      <?= csrf_field() ?>
+      <div class="form-group">
+        <label for="file_excel">File Excel (.xlsx / .xls / .csv)</label>
+        <input type="file" id="file_excel" name="file_excel" accept=".xlsx,.xls,.csv" required>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalImport')">Batal</button>
+        <button type="submit" class="btn btn-primary">Import sekarang</button>
       </div>
     </form>
   </div>

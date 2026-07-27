@@ -7,6 +7,7 @@ use App\Models\JurnalMengajarModel;
 use App\Models\KelasModel;
 use App\Models\MataPelajaranModel;
 use App\Models\PresensiDetailModel;
+use App\Models\TukarJadwalModel;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -153,6 +154,35 @@ class Laporan extends BaseController
         ]);
 
         return $this->streamPdf($html, 'rekap-jurnal.pdf');
+    }
+
+    // ======================================================= TUKAR JADWAL
+
+    public function tukarJadwal()
+    {
+        $filter = [
+            'tanggal_dari'   => $this->request->getGet('tanggal_dari') ?: date('Y-m-01'),
+            'tanggal_sampai' => $this->request->getGet('tanggal_sampai') ?: date('Y-m-d'),
+            'status'         => $this->request->getGet('status') ?: '',
+        ];
+
+        $rows = (new TukarJadwalModel())->getSemua($filter);
+
+        $rekap = ['menunggu' => 0, 'disetujui' => 0, 'ditolak' => 0, 'dibatalkan' => 0];
+        foreach ($rows as $r) {
+            $rekap[$r['status']] = ($rekap[$r['status']] ?? 0) + 1;
+        }
+
+        $data = [
+            'title'   => 'Laporan Tukar Jadwal',
+            'content' => view('laporan/tukar_jadwal', [
+                'rows'   => $rows,
+                'rekap'  => $rekap,
+                'filter' => $filter,
+            ]),
+        ];
+
+        return view('layouts/main', $data);
     }
 
     // ========================================================== PRIVATE

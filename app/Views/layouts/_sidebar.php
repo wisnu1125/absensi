@@ -21,8 +21,14 @@ $isActive = static fn (string $path): string => str_ends_with(rtrim($current, '/
       <a href="<?= base_url('dashboard') ?>" class="nav-item">
         <svg class="icon"><use href="#i-clipboard-check"/></svg> Jadwal hari ini
       </a>
-      <a href="#" class="nav-item disabled" title="Segera hadir di fase berikutnya">
+      <a href="<?= base_url('mengajar/kalender') ?>" class="nav-item <?= $isActive('mengajar/kalender') ?>">
+        <svg class="icon"><use href="#i-calendar"/></svg> Kalender jadwal
+      </a>
+      <a href="<?= base_url('mengajar/riwayat') ?>" class="nav-item <?= $isActive('mengajar/riwayat') ?>">
         <svg class="icon"><use href="#i-history"/></svg> Riwayat mengajar
+      </a>
+      <a href="<?= base_url('tukar-jadwal') ?>" class="nav-item <?= $isActive('tukar-jadwal') ?>">
+        <svg class="icon"><use href="#i-users"/></svg> Tukar jadwal
       </a>
     <?php endif; ?>
 
@@ -35,11 +41,8 @@ $isActive = static fn (string $path): string => str_ends_with(rtrim($current, '/
 
     <?php if (has_role('kepala_sekolah')): ?>
       <div class="nav-section">Monitoring</div>
-      <a href="#" class="nav-item disabled" title="Segera hadir di fase berikutnya">
-        <svg class="icon"><use href="#i-dashboard"/></svg> Monitoring real time
-      </a>
-      <a href="#" class="nav-item disabled" title="Segera hadir di fase berikutnya">
-        <svg class="icon"><use href="#i-chart"/></svg> Statistik sekolah
+      <a href="<?= base_url('dashboard') ?>" class="nav-item">
+        <svg class="icon"><use href="#i-dashboard"/></svg> Monitoring &amp; statistik
       </a>
     <?php endif; ?>
 
@@ -60,6 +63,9 @@ $isActive = static fn (string $path): string => str_ends_with(rtrim($current, '/
       <a href="<?= base_url('master/jam-pelajaran') ?>" class="nav-item <?= $isActive('master/jam-pelajaran') ?>">
         <svg class="icon"><use href="#i-clock"/></svg> Jam pelajaran
       </a>
+      <a href="<?= base_url('master/hari-libur') ?>" class="nav-item <?= $isActive('master/hari-libur') ?>">
+        <svg class="icon"><use href="#i-calendar"/></svg> Hari libur
+      </a>
       <a href="<?= base_url('master/tahun-ajaran') ?>" class="nav-item <?= $isActive('master/tahun-ajaran') ?>">
         <svg class="icon"><use href="#i-calendar"/></svg> Tahun ajaran &amp; semester
       </a>
@@ -75,6 +81,9 @@ $isActive = static fn (string $path): string => str_ends_with(rtrim($current, '/
       </a>
       <a href="<?= base_url('laporan/jurnal') ?>" class="nav-item <?= $isActive('laporan/jurnal') ?>">
         <svg class="icon"><use href="#i-file-text"/></svg> Rekap jurnal
+      </a>
+      <a href="<?= base_url('laporan/tukar-jadwal') ?>" class="nav-item <?= $isActive('laporan/tukar-jadwal') ?>">
+        <svg class="icon"><use href="#i-history"/></svg> Tukar jadwal
       </a>
     <?php endif; ?>
 

@@ -10,6 +10,9 @@ use App\Models\JamPelajaranModel;
 use App\Models\KelasModel;
 use App\Models\MataPelajaranModel;
 use App\Models\SemesterModel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Jadwal extends BaseController
 {
@@ -180,5 +183,132 @@ class Jadwal extends BaseController
         }
 
         return true;
+    }
+
+    /**
+     * Unduh template Excel — Guru/Mapel/Kelas/Hari/Jam Ke berupa dropdown supaya
+     * admin tinggal pilih, tidak mengetik manual dan salah ketik nama.
+     */
+    public function downloadTemplate()
+    {
+        $aktif = (new SemesterModel())->getActive();
+
+        if (! $aktif) {
+            return redirect()->to('/master/jadwal')->with('error', 'Tidak ada semester aktif, tidak bisa membuat template.');
+        }
+
+        $daftarGuru  = array_column((new GuruModel())->where('status', 'aktif')->findAll(), 'nama');
+        $daftarMapel = array_column((new MataPelajaranModel())->findAll(), 'nama');
+        $daftarKelas = array_column((new KelasModel())->where('tahun_ajaran_id', $aktif['tahun_ajaran_id'])->findAll(), 'nama_kelas');
+        $daftarJamKe = array_column((new JamPelajaranModel())->getAllOrdered(), 'jam_ke');
+
+        $spreadsheet = new Spreadsheet();
+        $sheet       = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Template Jadwal');
+
+        $headers = ['Guru', 'Mata Pelajaran', 'Kelas', 'Hari', 'Jam Ke Mulai', 'Jam Ke Selesai'];
+        foreach ($headers as $i => $header) {
+            $sheet->setCellValue([$i + 1, 1], $header);
+        }
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+        foreach (range('A', 'F') as $col) {
+            $sheet->getColumnDimension($col)->setWidth(22);
+        }
+
+        $this->pasangDropdown($sheet, 'A', 300, implode(',', $daftarGuru), true);
+        $this->pasangDropdown($sheet, 'B', 300, implode(',', $daftarMapel), true);
+        $this->pasangDropdown($sheet, 'C', 300, implode(',', $daftarKelas), true);
+        $this->pasangDropdown($sheet, 'D', 300, 'Senin,Selasa,Rabu,Kamis,Jumat,Sabtu', true);
+        $this->pasangDropdown($sheet, 'E', 300, implode(',', $daftarJamKe), true);
+        $this->pasangDropdown($sheet, 'F', 300, implode(',', $daftarJamKe), true);
+
+        $writer = new Xlsx($spreadsheet);
+
+        return $this->streamXlsx($writer, 'template_import_jadwal.xlsx');
+    }
+
+    public function import()
+    {
+        $aktif = (new SemesterModel())->getActive();
+
+        if (! $aktif) {
+            return redirect()->to('/master/jadwal')->with('error', 'Tidak ada semester aktif.');
+        }
+
+        $file = $this->request->getFile('file_excel');
+
+        if (! $file || ! $file->isValid()) {
+            return redirect()->to('/master/jadwal')->with('error', 'File Excel tidak valid atau belum dipilih.');
+        }
+
+        if (! in_array(strtolower($file->getClientExtension()), ['xlsx', 'xls', 'csv'], true)) {
+            return redirect()->to('/master/jadwal')->with('error', 'Format file harus xlsx, xls, atau csv.');
+        }
+
+        $spreadsheet = IOFactory::load($file->getTempName());
+        $rawRows     = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+        array_shift($rawRows); // buang baris header
+
+        $rows = [];
+        foreach ($rawRows as $r) {
+            if (empty(array_filter($r))) {
+                continue;
+            }
+            $rows[] = [
+                'guru'          => $r[0] ?? '',
+                'mapel'         => $r[1] ?? '',
+                'kelas'         => $r[2] ?? '',
+                'hari'          => $r[3] ?? '',
+                'jam_ke_mulai'  => $r[4] ?? '',
+                'jam_ke_selesai' => $r[5] ?? '',
+            ];
+        }
+
+        $hasil = $this->model->importRows($rows, (int) $aktif['tahun_ajaran_id'], (int) $aktif['id']);
+
+        (new AuditLogger())->log('import_jadwal', "Import Excel jadwal: {$hasil['sukses']} sukses, {$hasil['gagal']} gagal");
+
+        $pesan = "Import selesai: {$hasil['sukses']} jadwal berhasil ditambahkan, {$hasil['gagal']} dilewati.";
+        if (! empty($hasil['errors'])) {
+            $pesan .= ' Detail: ' . implode(' | ', array_slice($hasil['errors'], 0, 5));
+        }
+
+        return redirect()->to('/master/jadwal')->with('message', $pesan);
+    }
+
+    private function streamXlsx(Xlsx $writer, string $filename)
+    {
+        $response = service('response');
+        $response->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        $response->setHeader('Cache-Control', 'max-age=0');
+
+        ob_start();
+        $writer->save('php://output');
+        $content = ob_get_clean();
+
+        return $response->setBody($content);
+    }
+
+    /**
+     * Pasang dropdown pilihan pada satu kolom, dari baris 2 sampai $sampaiBaris.
+     * Diterapkan satu sel satu sel supaya kompatibel di semua versi PhpSpreadsheet.
+     */
+    private function pasangDropdown($sheet, string $kolom, int $sampaiBaris, string $daftarKoma, bool $wajib): void
+    {
+        for ($baris = 2; $baris <= $sampaiBaris; $baris++) {
+            $validation = $sheet->getCell($kolom . $baris)->getDataValidation();
+            $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+            $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
+            $validation->setAllowBlank(true);
+            $validation->setShowDropDown(true);
+            $validation->setShowInputMessage(true);
+            $validation->setShowErrorMessage($wajib);
+            $validation->setPromptTitle('Pilih dari daftar');
+            $validation->setPrompt('Klik sel ini lalu pilih dari daftar yang muncul.');
+            $validation->setErrorTitle('Nilai tidak valid');
+            $validation->setError('Silakan pilih salah satu dari daftar yang tersedia.');
+            $validation->setFormula1('"' . $daftarKoma . '"');
+        }
     }
 }

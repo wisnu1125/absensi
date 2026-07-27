@@ -63,17 +63,25 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
         $routes->get('siswa/template', 'Siswa::downloadTemplate');
         $routes->post('siswa/import', 'Siswa::import');
 
-        // Jadwal mengajar (+ validasi bentrok guru & kelas)
+        // Jadwal mengajar (+ validasi bentrok guru & kelas, + import Excel)
         $routes->get('jadwal', 'Jadwal::index');
         $routes->post('jadwal/store', 'Jadwal::store');
         $routes->post('jadwal/update', 'Jadwal::update');
         $routes->post('jadwal/delete/(:num)', 'Jadwal::delete/$1');
+        $routes->get('jadwal/template', 'Jadwal::downloadTemplate');
+        $routes->post('jadwal/import', 'Jadwal::import');
 
         // Jam pelajaran (beda-beda tiap sekolah, jadi wajib bisa diatur sendiri)
         $routes->get('jam-pelajaran', 'JamPelajaran::index');
         $routes->post('jam-pelajaran/store', 'JamPelajaran::store');
         $routes->post('jam-pelajaran/update', 'JamPelajaran::update');
         $routes->post('jam-pelajaran/delete/(:num)', 'JamPelajaran::delete/$1');
+
+        // Hari libur (kalender akademik)
+        $routes->get('hari-libur', 'HariLibur::index');
+        $routes->post('hari-libur/store', 'HariLibur::store');
+        $routes->post('hari-libur/update', 'HariLibur::update');
+        $routes->post('hari-libur/delete/(:num)', 'HariLibur::delete/$1');
     });
 
     // ------------------------------------------------------------------------
@@ -96,10 +104,21 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
         $routes->post('presensi/(:num)', 'Mengajar::simpanPresensi/$1');
         $routes->get('jurnal/(:num)', 'Mengajar::jurnal/$1');
         $routes->post('jurnal/(:num)', 'Mengajar::simpanJurnal/$1');
+        $routes->get('riwayat', 'Mengajar::riwayat');
+        $routes->get('kalender', 'Mengajar::kalender');
     });
 
     // Wali kelas: rekap kehadiran & data siswa untuk kelas yang ditugaskan
     $routes->get('wali-kelas', 'WaliKelas::index', ['filter' => 'role:wali_kelas']);
+
+    // Tukar jadwal: pengajuan guru pengganti untuk satu sesi tertentu
+    $routes->group('tukar-jadwal', ['filter' => 'role:guru'], static function (RouteCollection $routes) {
+        $routes->get('/', 'TukarJadwal::index');
+        $routes->post('ajukan', 'TukarJadwal::ajukan');
+        $routes->post('setuju/(:num)', 'TukarJadwal::setuju/$1');
+        $routes->post('tolak/(:num)', 'TukarJadwal::tolak/$1');
+        $routes->post('batal/(:num)', 'TukarJadwal::batal/$1');
+    });
 
     // ------------------------------------------------------------------------
     // FASE 5 — Laporan: DomPDF (PDF) & PhpSpreadsheet (Excel)
@@ -111,26 +130,6 @@ $routes->group('', ['filter' => 'auth'], static function (RouteCollection $route
         $routes->get('jurnal', 'Laporan::jurnal');
         $routes->get('jurnal/export-pdf', 'Laporan::jurnalExportPdf');
         $routes->get('jurnal/export-excel', 'Laporan::jurnalExportExcel');
+        $routes->get('tukar-jadwal', 'Laporan::tukarJadwal');
     });
-
-    // ------------------------------------------------------------------------
-    // FASE BERIKUTNYA — route di bawah ini akan ditambahkan bertahap:
-    //
-    // Jam pelajaran & hari libur (masih memakai data seed dari schema.sql):
-    // $routes->group('master', ['namespace' => 'App\Controllers\Master', 'filter' => 'role:administrator,operator'], static function ($routes) {
-    //     $routes->resource('jam-pelajaran');
-    //     $routes->resource('hari-libur');
-    // });
-    //
-    // Riwayat mengajar (guru) + rekap wali kelas & kepala sekolah:
-    // $routes->get('mengajar/riwayat', 'Mengajar::riwayat', ['filter' => 'role:guru']);
-    // $routes->group('wali-kelas', ['filter' => 'role:wali_kelas'], static function ($routes) { ... });
-    //
-    // Laporan (administrator, operator, kepala sekolah) — DomPDF & PhpSpreadsheet:
-    // $routes->group('laporan', ['filter' => 'role:administrator,operator,kepala_sekolah'], static function ($routes) {
-    //     $routes->get('presensi', 'Laporan::presensi');
-    //     $routes->get('presensi/export-pdf', 'Laporan::exportPdf');
-    //     $routes->get('presensi/export-excel', 'Laporan::exportExcel');
-    // });
-    // ------------------------------------------------------------------------
 });

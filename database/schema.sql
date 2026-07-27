@@ -208,6 +208,31 @@ CREATE TABLE `jadwal` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
+-- 3b. TUKAR JADWAL (guru pengganti untuk 1 sesi spesifik, bukan perubahan permanen)
+-- ----------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `tukar_jadwal`;
+CREATE TABLE `tukar_jadwal` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `jadwal_id` INT UNSIGNED NOT NULL,
+  `tanggal` DATE NOT NULL COMMENT 'tanggal spesifik sesi yang ditukar, bukan tanggal pengajuan',
+  `guru_asal_id` INT UNSIGNED NOT NULL COMMENT 'guru pemilik jadwal, yang mengajukan',
+  `guru_pengganti_id` INT UNSIGNED NOT NULL COMMENT 'guru yang diminta menggantikan',
+  `alasan` VARCHAR(255) DEFAULT NULL,
+  `status` ENUM('menunggu','disetujui','ditolak','dibatalkan') NOT NULL DEFAULT 'menunggu',
+  `catatan_respon` VARCHAR(255) DEFAULT NULL,
+  `created_at` DATETIME DEFAULT NULL,
+  `updated_at` DATETIME DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tukar_jadwal_tanggal` (`jadwal_id`, `tanggal`),
+  KEY `fk_tukar_guru_asal` (`guru_asal_id`),
+  KEY `fk_tukar_guru_pengganti` (`guru_pengganti_id`),
+  CONSTRAINT `fk_tukar_jadwal` FOREIGN KEY (`jadwal_id`) REFERENCES `jadwal` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_tukar_guru_asal` FOREIGN KEY (`guru_asal_id`) REFERENCES `guru` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_tukar_guru_pengganti` FOREIGN KEY (`guru_pengganti_id`) REFERENCES `guru` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------------------------------------------------------
 -- 4. PRESENSI & JURNAL — jadwal_id sebagai relasi utama (sesuai SRS §15)
 --    tanggal membedakan setiap kemunculan jadwal yang sama tiap minggunya
 -- ----------------------------------------------------------------------------
