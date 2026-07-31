@@ -10,11 +10,13 @@ class SemesterModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = false;
-    protected $allowedFields = ['tahun_ajaran_id', 'nama', 'is_active'];
+    protected $allowedFields = ['tahun_ajaran_id', 'nama', 'tanggal_mulai', 'tanggal_selesai', 'is_active'];
 
     protected $validationRules = [
         'tahun_ajaran_id' => 'required|is_natural_no_zero',
         'nama'            => 'required|in_list[Ganjil,Genap]',
+        'tanggal_mulai'   => 'permit_empty|valid_date',
+        'tanggal_selesai' => 'permit_empty|valid_date',
     ];
 
     public function getWithTahunAjaran(): array

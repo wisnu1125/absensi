@@ -45,7 +45,7 @@ class TukarJadwalModel extends Model
      */
     public function getDisetujuiUntukPengganti(int $guruId, string $tanggalDari, string $tanggalSampai): array
     {
-        return $this->select('tukar_jadwal.*, jadwal.hari, jadwal.jam_mulai, jadwal.jam_selesai, jadwal.kelas_id, jadwal.mapel_id, kelas.nama_kelas, mata_pelajaran.nama as nama_mapel, guru.nama as nama_guru_asal')
+        return $this->select('tukar_jadwal.*, jadwal.hari, jadwal.jam_mulai, jadwal.jam_selesai, jadwal.jam_ke_mulai, jadwal.jam_ke_selesai, jadwal.kelas_id, jadwal.mapel_id, kelas.nama_kelas, mata_pelajaran.nama as nama_mapel, guru.nama as nama_guru_asal')
             ->join('jadwal', 'jadwal.id = tukar_jadwal.jadwal_id')
             ->join('kelas', 'kelas.id = jadwal.kelas_id')
             ->join('mata_pelajaran', 'mata_pelajaran.id = jadwal.mapel_id')
@@ -111,6 +111,15 @@ class TukarJadwalModel extends Model
         }
 
         return $builder->orderBy('tukar_jadwal.tanggal', 'DESC')->findAll();
+    }
+
+    /**
+     * Jumlah pengajuan yang MASIH MENUNGGU RESPON $guruId (buat badge sidebar) —
+     * versi ringan dari getMenungguUntukGuru(), cuma COUNT tanpa JOIN detail.
+     */
+    public function hitungMenungguUntukGuru(int $guruId): int
+    {
+        return $this->where('guru_pengganti_id', $guruId)->where('status', 'menunggu')->countAllResults();
     }
 
     public function hitungMenunggu(): int

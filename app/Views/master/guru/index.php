@@ -18,38 +18,39 @@
   </div>
 </div>
 
-<div class="table-wrap">
+<div class="table-wrap table-responsive-cards">
   <table class="table" id="tabelGuru">
-    <thead><tr><th>Nama</th><th>NIP</th><th>L/P</th><th>Akun &amp; role</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+    <thead><tr><th style="width:50px">No.</th><th>Nama</th><th>NIP</th><th>L/P</th><th>Akun &amp; role</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
     <tbody>
       <?php if (empty($items)) : ?>
-        <tr><td colspan="6"><div class="empty-state"><h3>Belum ada data guru</h3><p>Tambah manual atau import lewat Excel.</p></div></td></tr>
+        <tr><td colspan="7"><div class="empty-state"><h3>Belum ada data guru</h3><p>Tambah manual atau import lewat Excel.</p></div></td></tr>
       <?php else : ?>
-        <?php foreach ($items as $row) : ?>
+        <?php foreach ($items as $i => $row) : ?>
           <tr>
-            <td><?= esc($row['nama']) ?></td>
-            <td><?= esc($row['nip'] ?? '-') ?></td>
-            <td><?= esc($row['jenis_kelamin']) ?></td>
-            <td>
+            <td class="text-soft" data-label="">#<?= esc($i + 1) ?></td>
+            <td class="td-card-title"><?= esc($row['nama']) ?></td>
+            <td data-label="NIP"><?= esc($row['nip'] ?? '-') ?></td>
+            <td data-label="L/P"><?= esc($row['jenis_kelamin']) ?></td>
+            <td data-label="Akun &amp; role">
               <?php if ($row['username']) : ?>
                 <div style="font-weight:600;font-size:12.5px"><?= esc($row['username']) ?></div>
                 <div style="margin-top:3px">
                   <?php foreach ($row['role_slugs'] as $rs) : ?>
-                    <span class="role-badge" style="margin-right:2px"><?= esc(role_label($rs)) ?></span>
+                    <span class="role-badge" style="margin-right:3px"><?= esc(role_label($rs)) ?></span>
                   <?php endforeach; ?>
                 </div>
               <?php else : ?>
                 <span class="text-soft">Belum ada akun login</span>
               <?php endif; ?>
             </td>
-            <td>
+            <td data-label="Status">
               <?php if ($row['status'] === 'aktif') : ?>
                 <span class="status-badge status-hadir">Aktif</span>
               <?php else : ?>
                 <span class="status-badge status-alpha">Nonaktif</span>
               <?php endif; ?>
             </td>
-            <td>
+            <td class="td-card-actions" data-label="">
               <div class="row-actions">
                 <button type="button" class="btn-icon"
                   onclick='fillEditGuru(<?= json_encode($row) ?>)'>
@@ -109,9 +110,9 @@ $roleTambahan = array_filter($roles, static fn ($r) => $r['slug'] !== 'guru');
         <textarea id="add_alamat" name="alamat" rows="2"></textarea>
       </div>
 
-      <div class="form-group" style="border-top:1px solid var(--color-border);padding-top:14px;margin-top:4px">
-        <label style="display:flex;align-items:center;gap:6px"><svg class="icon-sm"><use href="#i-key"/></svg> Akun login (opsional)</label>
-        <p class="form-hint" style="margin:-2px 0 10px">Kosongkan username kalau guru ini belum perlu login ke sistem — bisa ditambahkan belakangan lewat Edit.</p>
+      <div class="form-group form-divider">
+        <label class="label-icon"><svg class="icon-sm"><use href="#i-key"/></svg> Akun login (opsional)</label>
+        <p class="form-hint" style="margin-top:-2px">Kosongkan username kalau guru ini belum perlu login ke sistem — bisa ditambahkan belakangan lewat Edit.</p>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -129,15 +130,15 @@ $roleTambahan = array_filter($roles, static fn ($r) => $r['slug'] !== 'guru');
       </div>
       <div class="form-group">
         <label>Role tambahan <span class="text-soft">(role Guru otomatis diberikan)</span></label>
-        <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <div class="checkbox-group">
           <?php foreach ($roleTambahan as $r) : ?>
-            <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13.5px">
+            <label class="checkbox-label">
               <input type="checkbox" name="role_ids[]" value="<?= esc($r['id']) ?>"> <?= esc($r['name']) ?>
             </label>
           <?php endforeach; ?>
         </div>
       </div>
-      <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13.5px;margin-top:6px">
+      <label class="checkbox-label" style="margin-top:6px">
         <input type="checkbox" name="is_active" value="1" checked> Akun aktif (bisa login)
       </label>
 
@@ -192,9 +193,9 @@ $roleTambahan = array_filter($roles, static fn ($r) => $r['slug'] !== 'guru');
         </select>
       </div>
 
-      <div class="form-group" style="border-top:1px solid var(--color-border);padding-top:14px;margin-top:4px">
-        <label style="display:flex;align-items:center;gap:6px"><svg class="icon-sm"><use href="#i-key"/></svg> Akun login</label>
-        <p class="form-hint" id="edit_akun_hint" style="margin:-2px 0 10px"></p>
+      <div class="form-group form-divider">
+        <label class="label-icon"><svg class="icon-sm"><use href="#i-key"/></svg> Akun login</label>
+        <p class="form-hint" id="edit_akun_hint" style="margin-top:-2px"></p>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -212,15 +213,15 @@ $roleTambahan = array_filter($roles, static fn ($r) => $r['slug'] !== 'guru');
       </div>
       <div class="form-group">
         <label>Role tambahan <span class="text-soft">(role Guru otomatis diberikan)</span></label>
-        <div id="edit_roles" style="display:flex;flex-wrap:wrap;gap:10px">
+        <div id="edit_roles" class="checkbox-group">
           <?php foreach ($roleTambahan as $r) : ?>
-            <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13.5px">
+            <label class="checkbox-label">
               <input type="checkbox" name="role_ids[]" value="<?= esc($r['id']) ?>" class="edit-role-cb"> <?= esc($r['name']) ?>
             </label>
           <?php endforeach; ?>
         </div>
       </div>
-      <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13.5px;margin-top:6px">
+      <label class="checkbox-label" style="margin-top:6px">
         <input type="checkbox" name="is_active" value="1" id="edit_is_active"> Akun aktif (bisa login)
       </label>
 

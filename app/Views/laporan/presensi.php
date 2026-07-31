@@ -52,31 +52,33 @@
   </div>
 </form>
 
-<div class="card-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px">
+<div class="stat-grid" style="margin-bottom:20px">
   <?php foreach ($rekap as $status => $jumlah) : ?>
-    <div class="card">
-      <div class="text-soft" style="text-transform:uppercase;font-size:11px;letter-spacing:.04em"><?= esc($status) ?></div>
-      <div style="font-size:24px;font-weight:600;margin-top:4px"><?= esc($jumlah) ?></div>
+    <div class="stat-card">
+      <div class="stat-label"><?= esc($status) ?></div>
+      <div class="stat-value sm"><?= esc($jumlah) ?></div>
     </div>
   <?php endforeach; ?>
 </div>
 
-<div class="table-wrap">
+<div class="table-wrap table-responsive-cards">
   <table class="table">
-    <thead><tr><th>Tanggal</th><th>Kelas</th><th>Mapel</th><th>Guru</th><th>Siswa</th><th>Status</th><th>Catatan</th></tr></thead>
+    <thead><tr><th style="width:50px">No.</th><th>Tanggal</th><th>Kelas</th><th>Mapel</th><th>Guru</th><th>Siswa</th><th>Status</th><th>Catatan</th><th>Tukar Jadwal</th></tr></thead>
     <tbody>
       <?php if (empty($rows)) : ?>
-        <tr><td colspan="7"><div class="empty-state"><h3>Tidak ada data</h3><p>Coba ubah rentang tanggal atau filter lainnya.</p></div></td></tr>
+        <tr><td colspan="9"><div class="empty-state"><h3>Tidak ada data</h3><p>Coba ubah rentang tanggal atau filter lainnya.</p></div></td></tr>
       <?php else : ?>
-        <?php foreach ($rows as $r) : ?>
+        <?php foreach ($rows as $i => $r) : ?>
           <tr>
-            <td><?= esc(date('d-m-Y', strtotime($r['tanggal']))) ?></td>
-            <td><?= esc($r['nama_kelas']) ?></td>
-            <td><?= esc($r['nama_mapel']) ?></td>
-            <td><?= esc($r['nama_guru']) ?></td>
-            <td><?= esc($r['nama']) ?> <span class="text-soft">(<?= esc($r['nis']) ?>)</span></td>
-            <td><span class="status-badge status-<?= esc($r['status']) ?>"><?= esc(ucfirst($r['status'])) ?></span></td>
-            <td><?= esc($r['catatan'] ?? '-') ?></td>
+            <td class="text-soft" data-label="">#<?= esc($i + 1) ?></td>
+            <td data-label="Tanggal"><?= esc(date('d-m-Y', strtotime($r['tanggal']))) ?></td>
+            <td data-label="Kelas"><?= esc($r['nama_kelas']) ?></td>
+            <td data-label="Mapel"><?= esc($r['nama_mapel']) ?></td>
+            <td data-label="Guru"><?= esc($r['nama_guru']) ?></td>
+            <td class="td-card-title"><?= esc($r['nama']) ?> <span class="text-soft" style="font-weight:400;font-size:12px">(<?= esc($r['nis']) ?>)</span></td>
+            <td data-label="Status"><span class="status-badge status-<?= esc($r['status']) ?>"><?= esc(ucfirst($r['status'])) ?></span></td>
+            <td data-label="Catatan"><?= esc($r['catatan'] ?? '-') ?></td>
+            <td data-label="Tukar Jadwal"><?php if (! empty($r['ditukar'])) : ?><span class="status-badge status-izin" title="Jadwal aslinya hari <?= esc($r['hari_asli']) ?>">Ditukar</span><?php else : ?><span class="text-soft">-</span><?php endif; ?></td>
           </tr>
         <?php endforeach; ?>
       <?php endif; ?>

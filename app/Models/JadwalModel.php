@@ -10,8 +10,9 @@ class JadwalModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = true;
+    protected $useSoftDeletes = true;
     protected $allowedFields = [
-        'guru_id', 'mapel_id', 'kelas_id', 'tahun_ajaran_id', 'semester_id',
+        'guru_id', 'mapel_id', 'guru_pengampu_id', 'kelas_id', 'tahun_ajaran_id', 'semester_id',
         'hari', 'jam_ke_mulai', 'jam_ke_selesai', 'jam_mulai', 'jam_selesai', 'is_active',
     ];
 
@@ -90,6 +91,38 @@ class JadwalModel extends Model
     }
 
     /**
+     * Semua jadwal 1 semester (SELURUH guru & kelas, bukan cuma 1 guru), dipakai
+     * untuk tampilan grid jadwal induk sekolah (hari x jam x kelas).
+     */
+    public function getGridSemester(int $semesterId): array
+    {
+        return $this->select('jadwal.*, guru.nama as nama_guru, mata_pelajaran.nama as nama_mapel, kelas.nama_kelas, kelas.tingkat')
+            ->join('guru', 'guru.id = jadwal.guru_id')
+            ->join('mata_pelajaran', 'mata_pelajaran.id = jadwal.mapel_id')
+            ->join('kelas', 'kelas.id = jadwal.kelas_id')
+            ->where('jadwal.semester_id', $semesterId)
+            ->findAll();
+    }
+
+    /**
+     * Semua jadwal SELURUH guru pada satu hari+jam_ke tertentu — dipakai untuk
+     * "tabel ketersediaan" di form Tukar Jadwal, supaya guru yang mengajukan
+     * bisa lihat guru mana yang kosong di jam yang sama.
+     */
+    public function getSemuaPadaSlot(string $hari, int $jamKe, int $semesterId): array
+    {
+        return $this->select('jadwal.*, guru.nama as nama_guru, mata_pelajaran.nama as nama_mapel, kelas.nama_kelas')
+            ->join('guru', 'guru.id = jadwal.guru_id')
+            ->join('mata_pelajaran', 'mata_pelajaran.id = jadwal.mapel_id')
+            ->join('kelas', 'kelas.id = jadwal.kelas_id')
+            ->where('jadwal.hari', $hari)
+            ->where('jadwal.jam_ke_mulai <=', $jamKe)
+            ->where('jadwal.jam_ke_selesai >=', $jamKe)
+            ->where('jadwal.semester_id', $semesterId)
+            ->findAll();
+    }
+
+    /**
      * Semua jadwal 1 semester, lengkap dengan nama guru/mapel/kelas, terurut Senin -> Sabtu lalu jam.
      */
     public function getWithDetail(int $semesterId): array
@@ -116,10 +149,11 @@ class JadwalModel extends Model
      */
     public function importRows(array $rows, int $tahunAjaranId, int $semesterId): array
     {
-        $guruModel  = new GuruModel();
-        $mapelModel = new MataPelajaranModel();
-        $kelasModel = new KelasModel();
-        $jamModel   = new JamPelajaranModel();
+        $guruModel     = new GuruModel();
+        $mapelModel    = new MataPelajaranModel();
+        $kelasModel    = new KelasModel();
+        $jamModel      = new JamPelajaranModel();
+        $pengampuModel = new \App\Models\GuruPengampuModel();
 
         $hariValid = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
         $sukses    = 0;
@@ -168,17 +202,30 @@ class JadwalModel extends Model
                 continue;
             }
 
+            // Guru Pengampu: kombinasi guru+mapel+tingkat kelas ini HARUS
+            // sudah terdaftar sebagai pengampu — sama seperti validasi di
+            // form Tambah/Edit Jadwal interaktif, supaya import Excel tidak
+            // jadi celah untuk membuat jadwal dengan kombinasi tidak valid.
+            $pengampu = $pengampuModel->where('guru_id', $guru['id'])->where('mapel_id', $mapel['id'])->where('tingkat', $kelas['tingkat'])->first();
+            if (! $pengampu) {
+                $gagal++;
+                $errors[] = "Baris {$baris}: {$namaGuru} belum terdaftar sebagai pengampu {$namaMapel} tingkat {$kelas['tingkat']} — daftarkan dulu di menu Guru Pengampu.";
+                continue;
+            }
+
             if ($jamKeSelesai < $jamKeMulai) {
                 $gagal++;
                 $errors[] = "Baris {$baris}: jam ke-selesai tidak boleh sebelum jam ke-mulai.";
                 continue;
             }
 
-            $jpMulai   = $jamModel->findByJamKe($jamKeMulai);
-            $jpSelesai = $jamModel->findByJamKe($jamKeSelesai);
+            // findByHariJamKe() — bukan lagi findByJamKe(), sejak jam pelajaran
+            // dipisah per hari (jam bisa beda tiap hari).
+            $jpMulai   = $jamModel->findByHariJamKe($hari, $jamKeMulai);
+            $jpSelesai = $jamModel->findByHariJamKe($hari, $jamKeSelesai);
             if (! $jpMulai || ! $jpSelesai) {
                 $gagal++;
-                $errors[] = "Baris {$baris}: jam ke-{$jamKeMulai}/{$jamKeSelesai} tidak ditemukan di Data Master Jam Pelajaran.";
+                $errors[] = "Baris {$baris}: jam ke-{$jamKeMulai}/{$jamKeSelesai} untuk hari {$hari} belum diatur di Data Master Jam Pelajaran.";
                 continue;
             }
 
@@ -200,17 +247,18 @@ class JadwalModel extends Model
             }
 
             $this->insert([
-                'guru_id'         => (int) $guru['id'],
-                'mapel_id'        => (int) $mapel['id'],
-                'kelas_id'        => (int) $kelas['id'],
-                'tahun_ajaran_id' => $tahunAjaranId,
-                'semester_id'     => $semesterId,
-                'hari'            => $hari,
-                'jam_ke_mulai'    => $jamKeMulai,
-                'jam_ke_selesai'  => $jamKeSelesai,
-                'jam_mulai'       => $jamMulai,
-                'jam_selesai'     => $jamSelesai,
-                'is_active'       => 1,
+                'guru_id'          => (int) $guru['id'],
+                'mapel_id'         => (int) $mapel['id'],
+                'guru_pengampu_id' => (int) $pengampu['id'],
+                'kelas_id'         => (int) $kelas['id'],
+                'tahun_ajaran_id'  => $tahunAjaranId,
+                'semester_id'      => $semesterId,
+                'hari'             => $hari,
+                'jam_ke_mulai'     => $jamKeMulai,
+                'jam_ke_selesai'   => $jamKeSelesai,
+                'jam_mulai'        => $jamMulai,
+                'jam_selesai'      => $jamSelesai,
+                'is_active'        => 1,
             ]);
 
             $sukses++;

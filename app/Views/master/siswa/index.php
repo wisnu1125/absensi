@@ -11,49 +11,75 @@
 </div>
 
 <div class="toolbar">
-  <input type="text" class="toolbar-search" placeholder="Cari siswa..." oninput="filterTable(this.value, 'tabelSiswa')">
+  <input type="text" class="toolbar-search" id="cariSiswa" placeholder="Cari siswa..." oninput="filterSiswa()">
+  <select id="filterKelas" onchange="filterSiswa()" style="max-width:200px">
+    <option value="">Semua kelas</option>
+    <?php foreach ($kelas as $k) : ?>
+      <option value="<?= esc($k['id']) ?>"><?= esc($k['nama_kelas']) ?></option>
+    <?php endforeach; ?>
+  </select>
+  <select id="filterJenjang" onchange="filterSiswa()" style="max-width:160px">
+    <option value="">Semua jenjang</option>
+    <?php foreach ($tingkatList as $t) : ?>
+      <option value="<?= esc($t) ?>">Tingkat <?= esc($t) ?></option>
+    <?php endforeach; ?>
+  </select>
   <div style="display:flex;gap:8px">
     <button type="button" class="btn btn-outline" onclick="openModal('modalImport')"><svg class="icon-sm"><use href="#i-upload"/></svg> Import Excel</button>
     <button type="button" class="btn btn-primary" onclick="openModal('modalTambah')"><svg class="icon-sm" style="stroke:#fff"><use href="#i-plus"/></svg> Tambah siswa</button>
   </div>
 </div>
 
-<div class="table-wrap">
-  <table class="table" id="tabelSiswa">
-    <thead><tr><th>NIS</th><th>Nama</th><th>L/P</th><th>Kelas</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
-    <tbody>
-      <?php if (empty($items)) : ?>
-        <tr><td colspan="6"><div class="empty-state"><h3>Belum ada data siswa</h3><p>Tambah manual atau import lewat Excel.</p></div></td></tr>
-      <?php else : ?>
-        <?php foreach ($items as $row) : ?>
-          <tr>
-            <td><?= esc($row['nis']) ?></td>
-            <td><?= esc($row['nama']) ?></td>
-            <td><?= esc($row['jenis_kelamin']) ?></td>
-            <td><?= esc($row['nama_kelas'] ?? '-') ?></td>
-            <td>
-              <?php if ($row['status'] === 'aktif') : ?>
-                <span class="status-badge status-hadir">Aktif</span>
-              <?php else : ?>
-                <span class="status-badge status-alpha"><?= esc(ucfirst($row['status'])) ?></span>
-              <?php endif; ?>
-            </td>
-            <td>
-              <div class="row-actions">
-                <button type="button" class="btn-icon" onclick='fillEditSiswa(<?= json_encode($row) ?>)'><svg class="icon-sm"><use href="#i-edit"/></svg> Edit</button>
-                <form method="post" action="<?= base_url('master/siswa/delete/' . $row['id']) ?>"
-                  onsubmit="return confirm('Hapus data siswa &quot;<?= esc($row['nama'], 'js') ?>&quot;?')" style="display:inline">
-                  <?= csrf_field() ?>
-                  <button type="submit" class="btn-icon btn-icon-danger"><svg class="icon-sm"><use href="#i-trash"/></svg> Hapus</button>
-                </form>
-              </div>
-            </td>
-          </tr>
-        <?php endforeach; ?>
-      <?php endif; ?>
-    </tbody>
-  </table>
-</div>
+<form method="post" action="<?= base_url('master/siswa/bulk-delete') ?>" id="formBulkDelete" onsubmit="return confirm('Hapus ' + document.querySelectorAll('.cek-siswa:checked').length + ' siswa terpilih?')">
+  <?= csrf_field() ?>
+  <div id="barAksiMassal" class="alert alert-danger" style="display:none;background:var(--color-primary-soft);color:var(--color-primary);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+    <span><strong id="jumlahTerpilih">0</strong> siswa dipilih</span>
+    <button type="submit" class="btn btn-icon-danger btn-sm" style="background:#fff"><svg class="icon-sm"><use href="#i-trash"/></svg> Hapus yang dipilih</button>
+  </div>
+
+  <div class="table-wrap table-responsive-cards">
+    <table class="table" id="tabelSiswa">
+      <thead><tr>
+        <th style="width:36px"><input type="checkbox" id="cekSemua" onchange="toggleSemua(this)"></th>
+        <th style="width:50px">No.</th><th>NIS</th><th>Nama</th><th>L/P</th><th>Kelas</th><th>Status</th><th style="text-align:right">Aksi</th>
+      </tr></thead>
+      <tbody>
+        <?php if (empty($items)) : ?>
+          <tr><td colspan="8"><div class="empty-state"><h3>Belum ada data siswa</h3><p>Tambah manual atau import lewat Excel.</p></div></td></tr>
+        <?php else : ?>
+          <?php foreach ($items as $i => $row) : ?>
+            <tr data-kelas-id="<?= esc($row['kelas_id'] ?? '') ?>" data-tingkat="<?= esc($row['tingkat'] ?? '') ?>">
+              <td data-label=""><input type="checkbox" class="cek-siswa" name="ids[]" value="<?= esc($row['id']) ?>" onchange="perbaruiAksiMassal()"></td>
+              <td class="text-soft" data-label="">#<?= esc($i + 1) ?></td>
+              <td data-label="NIS"><?= esc($row['nis']) ?></td>
+              <td class="td-card-title"><?= esc($row['nama']) ?></td>
+              <td data-label="L/P"><?= esc($row['jenis_kelamin']) ?></td>
+              <td data-label="Kelas"><?= esc($row['nama_kelas'] ?? '-') ?></td>
+              <td data-label="Status">
+                <?php if ($row['status'] === 'aktif') : ?>
+                  <span class="status-badge status-hadir">Aktif</span>
+                <?php else : ?>
+                  <span class="status-badge status-alpha"><?= esc(ucfirst($row['status'])) ?></span>
+                <?php endif; ?>
+              </td>
+              <td class="td-card-actions" data-label="">
+                <div class="row-actions">
+                  <button type="button" class="btn-icon" onclick='fillEditSiswa(<?= json_encode($row) ?>)'><svg class="icon-sm"><use href="#i-edit"/></svg> Edit</button>
+                  <button type="button" class="btn-icon btn-icon-danger" onclick="hapusSatu(<?= (int) $row['id'] ?>, '<?= esc($row['nama'], 'js') ?>')"><svg class="icon-sm"><use href="#i-trash"/></svg> Hapus</button>
+                </div>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </tbody>
+    </table>
+  </div>
+</form>
+
+<!-- Form terpisah khusus utk hapus SATU siswa (di luar form bulk-delete, supaya action-nya beda) -->
+<form method="post" id="formHapusSatu" style="display:none">
+  <?= csrf_field() ?>
+</form>
 
 <!-- Modal: Tambah -->
 <div class="modal" id="modalTambah">
@@ -211,6 +237,47 @@
 </div>
 
 <script>
+function filterSiswa() {
+  const q = document.getElementById('cariSiswa').value.trim().toLowerCase();
+  const kelasId = document.getElementById('filterKelas').value;
+  const tingkat = document.getElementById('filterJenjang').value;
+
+  document.querySelectorAll('#tabelSiswa tbody tr[data-kelas-id]').forEach(function (row) {
+    const cocokTeks = ! q || row.textContent.toLowerCase().includes(q);
+    const cocokKelas = ! kelasId || row.dataset.kelasId === kelasId;
+    const cocokTingkat = ! tingkat || row.dataset.tingkat === tingkat;
+    row.style.display = (cocokTeks && cocokKelas && cocokTingkat) ? '' : 'none';
+  });
+
+  // Lepas centang baris yang jadi tersembunyi, supaya tidak "terpilih diam-diam".
+  document.querySelectorAll('#tabelSiswa tbody tr[style*="display: none"] .cek-siswa:checked').forEach(function (cb) {
+    cb.checked = false;
+  });
+  perbaruiAksiMassal();
+}
+
+function toggleSemua(master) {
+  document.querySelectorAll('#tabelSiswa tbody tr:not([style*="display: none"]) .cek-siswa').forEach(function (cb) {
+    cb.checked = master.checked;
+  });
+  perbaruiAksiMassal();
+}
+
+function perbaruiAksiMassal() {
+  const jumlah = document.querySelectorAll('.cek-siswa:checked').length;
+  document.getElementById('jumlahTerpilih').textContent = jumlah;
+  document.getElementById('barAksiMassal').style.display = jumlah > 0 ? 'flex' : 'none';
+}
+
+function hapusSatu(id, nama) {
+  if (! confirm('Hapus data siswa "' + nama + '"?')) {
+    return;
+  }
+  const form = document.getElementById('formHapusSatu');
+  form.action = '<?= base_url('master/siswa/delete/') ?>' + id;
+  form.submit();
+}
+
 function fillEditSiswa(s) {
   document.getElementById('edit_id').value = s.id;
   document.getElementById('edit_nis').value = s.nis;
@@ -224,4 +291,13 @@ function fillEditSiswa(s) {
   document.getElementById('edit_status').value = s.status;
   openModal('modalEdit');
 }
+
+// Kalau datang dari link "X siswa" di halaman Kelas (?kelas_id=..), langsung terapkan filternya.
+(function () {
+  const kelasIdUrl = new URLSearchParams(window.location.search).get('kelas_id');
+  if (kelasIdUrl) {
+    document.getElementById('filterKelas').value = kelasIdUrl;
+    filterSiswa();
+  }
+})();
 </script>

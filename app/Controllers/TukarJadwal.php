@@ -9,11 +9,12 @@ use App\Models\SemesterModel;
 use App\Models\TukarJadwalModel;
 
 /**
- * Tukar jadwal = pengajuan guru pengganti untuk SATU sesi tertentu saja
- * (satu jadwal_id + satu tanggal spesifik). Tabel `jadwal` (template mingguan)
- * TIDAK PERNAH diubah oleh fitur ini — begitu minggu berganti, jadwal otomatis
- * kembali ke guru aslinya karena pengajuan ini memang cuma berlaku untuk
- * tanggal yang diajukan.
+ * Cari Guru Pengganti = pengajuan SATU GURU untuk menggantikan SATU sesi
+ * tertentu saja (satu jadwal_id + satu tanggal spesifik) — beda dengan Tukar
+ * Jadwal (lihat JadwalSwap.php) yang menukar SLOT PENUH antar 2 guru. Tabel
+ * `jadwal` (template mingguan) TIDAK PERNAH diubah oleh fitur ini — begitu
+ * minggu berganti, jadwal otomatis kembali ke guru aslinya karena pengajuan
+ * ini memang cuma berlaku untuk tanggal yang diajukan.
  */
 class TukarJadwal extends BaseController
 {
@@ -30,6 +31,7 @@ class TukarJadwal extends BaseController
         }
 
         $aktif = (new SemesterModel())->getActive();
+
         $jadwalSaya = $aktif
             ? (new JadwalModel())->select('jadwal.*, mata_pelajaran.nama as nama_mapel, kelas.nama_kelas')
                 ->join('mata_pelajaran', 'mata_pelajaran.id = jadwal.mapel_id')
@@ -41,12 +43,22 @@ class TukarJadwal extends BaseController
 
         $tukarModel = new TukarJadwalModel();
 
+        // Untuk tiap jadwal milik guru ini, siapkan daftar guru lain yang SIBUK
+        // di jam yang sama — jadi saat memilih guru pengganti, kelihatan siapa
+        // yang kemungkinan besar kosong di jam itu.
+        $ketersediaan = [];
+        foreach ($jadwalSaya as $j) {
+            $sibuk = (new JadwalModel())->getSemuaPadaSlot($j['hari'], (int) $j['jam_ke_mulai'], (int) $aktif['id']);
+            $ketersediaan[$j['id']] = array_values(array_filter($sibuk, static fn ($s) => (int) $s['guru_id'] !== (int) $guru['id']));
+        }
+
         $data = [
-            'title'   => 'Tukar Jadwal',
+            'title'   => 'Cari Guru Pengganti',
             'content' => view('tukar_jadwal/index', [
                 'guru'          => $guru,
                 'aktif'         => $aktif,
                 'jadwalSaya'    => $jadwalSaya,
+                'ketersediaan'  => $ketersediaan,
                 'guruLain'      => (new GuruModel())->where('status', 'aktif')->where('id !=', $guru['id'])->orderBy('nama', 'ASC')->findAll(),
                 'menunggu'      => $tukarModel->getMenungguUntukGuru((int) $guru['id']),
                 'riwayat'       => $tukarModel->getRiwayatUntukGuru((int) $guru['id']),
@@ -74,7 +86,7 @@ class TukarJadwal extends BaseController
         }
 
         if ($guruPenggantiId === (int) $guru['id']) {
-            return redirect()->to('/tukar-jadwal')->with('error', 'Tidak bisa mengajukan tukar jadwal ke diri sendiri.');
+            return redirect()->to('/tukar-jadwal')->with('error', 'Tidak bisa mengajukan penggantian ke diri sendiri.');
         }
 
         $guruPengganti = (new GuruModel())->find($guruPenggantiId);
@@ -112,9 +124,9 @@ class TukarJadwal extends BaseController
             return redirect()->to('/tukar-jadwal')->with('error', implode(' ', $tukarModel->errors()));
         }
 
-        (new AuditLogger())->log('ajukan_tukar_jadwal', "Mengajukan tukar jadwal #{$jadwalId} tanggal {$tanggal} ke {$guruPengganti['nama']}");
+        (new AuditLogger())->log('ajukan_tukar_jadwal', "Mengajukan penggantian jadwal #{$jadwalId} tanggal {$tanggal} ke {$guruPengganti['nama']}");
 
-        return redirect()->to('/tukar-jadwal')->with('message', 'Pengajuan tukar jadwal berhasil dikirim, menunggu persetujuan ' . $guruPengganti['nama'] . '.');
+        return redirect()->to('/tukar-jadwal')->with('message', 'Pengajuan guru pengganti berhasil dikirim, menunggu persetujuan ' . $guruPengganti['nama'] . '.');
     }
 
     public function setuju($id)
@@ -150,7 +162,7 @@ class TukarJadwal extends BaseController
             'catatan_respon' => $this->request->getPost('catatan_respon') ?: null,
         ]);
 
-        (new AuditLogger())->log('respon_tukar_jadwal', "Merespon ({$status}) pengajuan tukar jadwal #{$id}");
+        (new AuditLogger())->log('respon_tukar_jadwal', "Merespon ({$status}) pengajuan penggantian jadwal #{$id}");
 
         return redirect()->to('/tukar-jadwal')->with('message', $status === 'disetujui' ? 'Pengajuan disetujui.' : 'Pengajuan ditolak.');
     }
@@ -175,7 +187,7 @@ class TukarJadwal extends BaseController
 
         $tukarModel->update((int) $id, ['status' => 'dibatalkan']);
 
-        (new AuditLogger())->log('batal_tukar_jadwal', 'Membatalkan pengajuan tukar jadwal #' . $id);
+        (new AuditLogger())->log('batal_tukar_jadwal', 'Membatalkan pengajuan penggantian jadwal #' . $id);
 
         return redirect()->to('/tukar-jadwal')->with('message', 'Pengajuan dibatalkan.');
     }

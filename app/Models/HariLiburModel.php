@@ -10,9 +10,14 @@ class HariLiburModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = false;
+    protected $useSoftDeletes = true;
     protected $allowedFields = ['tanggal', 'keterangan'];
 
     protected $validationRules = [
+        // 'id' WAJIB ada di sini — sejak CI4 4.3.5, placeholder {id} di is_unique
+        // tidak diganti kalau field id tidak punya aturan validasi sendiri (lihat
+        // penjelasan lengkap di SiswaModel, bug yang sama persis terjadi di sini).
+        'id'         => 'permit_empty|is_natural_no_zero',
         'tanggal'    => 'required|valid_date|is_unique[hari_libur.tanggal,id,{id}]',
         'keterangan' => 'required|max_length[255]',
     ];

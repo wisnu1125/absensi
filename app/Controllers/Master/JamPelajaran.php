@@ -26,7 +26,7 @@ class JamPelajaran extends BaseController
         $data = [
             'title'   => 'Jam Pelajaran',
             'content' => view('master/jam_pelajaran/index', [
-                'items' => $this->model->getAllOrdered(),
+                'dikelompokkan' => $this->model->getSemuaDikelompokkan(),
             ]),
         ];
 
@@ -35,6 +35,8 @@ class JamPelajaran extends BaseController
 
     public function store()
     {
+        $hari       = $this->request->getPost('hari');
+        $jamKe      = (int) $this->request->getPost('jam_ke');
         $jamMulai   = $this->request->getPost('jam_mulai');
         $jamSelesai = $this->request->getPost('jam_selesai');
 
@@ -42,20 +44,26 @@ class JamPelajaran extends BaseController
             return redirect()->to('/master/jam-pelajaran')->with('error', 'Jam selesai harus lebih besar dari jam mulai.');
         }
 
-        $bentrok = $this->model->cekBentrok($jamMulai, $jamSelesai);
+        if ($this->model->sudahAda($hari, $jamKe)) {
+            return redirect()->to('/master/jam-pelajaran')->with('error', "Jam ke-{$jamKe} untuk hari {$hari} sudah ada, pilih nomor lain atau edit yang sudah ada.");
+        }
+
+        $bentrok = $this->model->cekBentrok($hari, $jamMulai, $jamSelesai);
         if ($bentrok) {
             return redirect()->to('/master/jam-pelajaran')->with('error', sprintf(
-                'Jam %s–%s bentrok dengan jam ke-%d (%s–%s) yang sudah ada.',
+                'Jam %s–%s bentrok dengan jam ke-%d (%s–%s) yang sudah ada di hari %s.',
                 substr($jamMulai, 0, 5),
                 substr($jamSelesai, 0, 5),
                 $bentrok['jam_ke'],
                 substr($bentrok['jam_mulai'], 0, 5),
-                substr($bentrok['jam_selesai'], 0, 5)
+                substr($bentrok['jam_selesai'], 0, 5),
+                $hari
             ));
         }
 
         $ok = $this->model->insert([
-            'jam_ke'      => (int) $this->request->getPost('jam_ke'),
+            'hari'        => $hari,
+            'jam_ke'      => $jamKe,
             'jam_mulai'   => $jamMulai,
             'jam_selesai' => $jamSelesai,
         ]);
@@ -64,7 +72,7 @@ class JamPelajaran extends BaseController
             return redirect()->to('/master/jam-pelajaran')->with('error', implode(' ', $this->model->errors()));
         }
 
-        (new AuditLogger())->log('tambah_jam_pelajaran', 'Menambah jam pelajaran ke-' . $this->request->getPost('jam_ke'));
+        (new AuditLogger())->log('tambah_jam_pelajaran', "Menambah jam pelajaran ke-{$jamKe} hari {$hari}");
 
         return redirect()->to('/master/jam-pelajaran')->with('message', 'Jam pelajaran berhasil ditambahkan.');
     }
@@ -72,6 +80,8 @@ class JamPelajaran extends BaseController
     public function update()
     {
         $id         = (int) $this->request->getPost('id');
+        $hari       = $this->request->getPost('hari');
+        $jamKe      = (int) $this->request->getPost('jam_ke');
         $jamMulai   = $this->request->getPost('jam_mulai');
         $jamSelesai = $this->request->getPost('jam_selesai');
 
@@ -79,20 +89,26 @@ class JamPelajaran extends BaseController
             return redirect()->to('/master/jam-pelajaran')->with('error', 'Jam selesai harus lebih besar dari jam mulai.');
         }
 
-        $bentrok = $this->model->cekBentrok($jamMulai, $jamSelesai, $id);
+        if ($this->model->sudahAda($hari, $jamKe, $id)) {
+            return redirect()->to('/master/jam-pelajaran')->with('error', "Jam ke-{$jamKe} untuk hari {$hari} sudah dipakai baris lain.");
+        }
+
+        $bentrok = $this->model->cekBentrok($hari, $jamMulai, $jamSelesai, $id);
         if ($bentrok) {
             return redirect()->to('/master/jam-pelajaran')->with('error', sprintf(
-                'Jam %s–%s bentrok dengan jam ke-%d (%s–%s) yang sudah ada.',
+                'Jam %s–%s bentrok dengan jam ke-%d (%s–%s) yang sudah ada di hari %s.',
                 substr($jamMulai, 0, 5),
                 substr($jamSelesai, 0, 5),
                 $bentrok['jam_ke'],
                 substr($bentrok['jam_mulai'], 0, 5),
-                substr($bentrok['jam_selesai'], 0, 5)
+                substr($bentrok['jam_selesai'], 0, 5),
+                $hari
             ));
         }
 
         $ok = $this->model->update($id, [
-            'jam_ke'      => (int) $this->request->getPost('jam_ke'),
+            'hari'        => $hari,
+            'jam_ke'      => $jamKe,
             'jam_mulai'   => $jamMulai,
             'jam_selesai' => $jamSelesai,
         ]);
@@ -110,8 +126,8 @@ class JamPelajaran extends BaseController
     {
         $jam = $this->model->find((int) $id);
 
-        if ($jam && $this->model->dipakaiJadwal((int) $jam['jam_ke'])) {
-            return redirect()->to('/master/jam-pelajaran')->with('error', 'Jam ke-' . $jam['jam_ke'] . ' tidak bisa dihapus karena masih dipakai di jadwal mengajar.');
+        if ($jam && $this->model->dipakaiJadwal($jam['hari'], (int) $jam['jam_ke'])) {
+            return redirect()->to('/master/jam-pelajaran')->with('error', "Jam ke-{$jam['jam_ke']} hari {$jam['hari']} tidak bisa dihapus karena masih dipakai di jadwal mengajar.");
         }
 
         $this->model->delete((int) $id);

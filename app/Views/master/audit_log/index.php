@@ -48,20 +48,21 @@ $urlHalaman  = static fn (int $p) => base_url('master/audit-log?' . http_build_q
   <button type="submit" class="btn btn-primary"><svg class="icon-sm" style="stroke:#fff"><use href="#i-search"/></svg> Terapkan filter</button>
 </form>
 
-<div class="table-wrap">
+<div class="table-wrap table-responsive-cards">
   <table class="table">
-    <thead><tr><th>Waktu</th><th>Pengguna</th><th>Aktivitas</th><th>Keterangan</th><th>IP Address</th></tr></thead>
+    <thead><tr><th style="width:50px">No.</th><th>Waktu</th><th>Pengguna</th><th>Aktivitas</th><th>Keterangan</th><th>IP Address</th></tr></thead>
     <tbody>
       <?php if (empty($rows)) : ?>
-        <tr><td colspan="5"><div class="empty-state"><h3>Tidak ada aktivitas</h3><p>Coba ubah rentang tanggal atau filter lainnya.</p></div></td></tr>
+        <tr><td colspan="6"><div class="empty-state"><h3>Tidak ada aktivitas</h3><p>Coba ubah rentang tanggal atau filter lainnya.</p></div></td></tr>
       <?php else : ?>
-        <?php foreach ($rows as $r) : ?>
+        <?php foreach ($rows as $i => $r) : ?>
           <tr>
-            <td class="text-soft" style="white-space:nowrap"><?= esc(date('d-m-Y H:i', strtotime($r['created_at']))) ?></td>
-            <td><?= $r['full_name'] ? esc($r['full_name']) : '<span class="text-soft">(tidak diketahui)</span>' ?></td>
-            <td><span class="role-badge"><?= esc(ucwords(str_replace('_', ' ', $r['aktivitas']))) ?></span></td>
-            <td><?= esc($r['keterangan'] ?? '-') ?></td>
-            <td class="text-soft"><?= esc($r['ip_address'] ?? '-') ?></td>
+            <td class="text-soft" data-label="">#<?= esc(($halamanIni - 1) * 25 + $i + 1) ?></td>
+            <td class="text-soft" data-label="Waktu" style="white-space:nowrap"><?= esc(date('d-m-Y H:i', strtotime($r['created_at']))) ?></td>
+            <td class="td-card-title"><?= $r['full_name'] ? esc($r['full_name']) : '<span class="text-soft">(tidak diketahui)</span>' ?></td>
+            <td data-label="Aktivitas"><span class="role-badge"><?= esc(ucwords(str_replace('_', ' ', $r['aktivitas']))) ?></span></td>
+            <td data-label="Keterangan"><?= esc($r['keterangan'] ?? '-') ?></td>
+            <td class="text-soft" data-label="IP Address"><?= esc($r['ip_address'] ?? '-') ?></td>
           </tr>
         <?php endforeach; ?>
       <?php endif; ?>
@@ -70,9 +71,9 @@ $urlHalaman  = static fn (int $p) => base_url('master/audit-log?' . http_build_q
 </div>
 
 <?php if ($totalHalaman > 1) : ?>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+  <div class="pagination">
     <span class="text-soft">Halaman <?= esc($halamanIni) ?> dari <?= esc($totalHalaman) ?> &middot; <?= esc($pager->getTotal()) ?> catatan</span>
-    <div style="display:flex;gap:8px">
+    <div class="pagination-links">
       <?php if ($halamanIni > 1) : ?>
         <a href="<?= $urlHalaman($halamanIni - 1) ?>" class="btn btn-outline btn-sm">&larr; Sebelumnya</a>
       <?php endif; ?>

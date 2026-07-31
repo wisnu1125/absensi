@@ -39,7 +39,9 @@ abstract class BaseController extends Controller
         // current_user(), has_role(), has_any_role(), role_label() yang dipakai di
         // hampir semua Controller & View di seluruh aplikasi (sidebar, dashboard, dst).
         // Tanpa baris ini akan muncul error "Call to undefined function current_user()".
-        $this->helpers = ['auth'];
+        // 'chart' -> app/Helpers/chart_helper.php, svg_donut_chart()/svg_line_chart()
+        // dipakai Dashboard Admin (Analisis Penilaian & Grafik Mingguan).
+        $this->helpers = ['auth', 'chart'];
 
         // Caution: Do not edit this line.
         parent::initController($request, $response, $logger);

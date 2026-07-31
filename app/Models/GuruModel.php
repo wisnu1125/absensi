@@ -10,6 +10,7 @@ class GuruModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = true;
+    protected $useSoftDeletes = true;
     protected $allowedFields = ['user_id', 'nip', 'nama', 'jenis_kelamin', 'no_hp', 'alamat', 'status'];
 
     protected $validationRules = [

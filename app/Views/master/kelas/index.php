@@ -23,20 +23,26 @@
   <button type="button" class="btn btn-primary" onclick="openModal('modalTambah')"><svg class="icon-sm" style="stroke:#fff"><use href="#i-plus"/></svg> Tambah kelas</button>
 </div>
 
-<div class="table-wrap">
+<div class="table-wrap table-responsive-cards">
   <table class="table" id="tabelKelas">
-    <thead><tr><th>Nama kelas</th><th>Tingkat</th><th>Tahun ajaran</th><th>Wali kelas</th><th style="text-align:right">Aksi</th></tr></thead>
+    <thead><tr><th style="width:50px">No.</th><th>Nama kelas</th><th>Tingkat</th><th>Tahun ajaran</th><th>Wali kelas</th><th style="text-align:center">Jumlah siswa</th><th style="text-align:right">Aksi</th></tr></thead>
     <tbody>
       <?php if (empty($items)) : ?>
-        <tr><td colspan="5"><div class="empty-state"><h3>Belum ada kelas</h3><p>Klik "Tambah kelas" untuk menambahkan data pertama.</p></div></td></tr>
+        <tr><td colspan="7"><div class="empty-state"><h3>Belum ada kelas</h3><p>Klik "Tambah kelas" untuk menambahkan data pertama.</p></div></td></tr>
       <?php else : ?>
-        <?php foreach ($items as $row) : ?>
+        <?php foreach ($items as $i => $row) : ?>
           <tr>
-            <td><?= esc($row['nama_kelas']) ?></td>
-            <td><?= esc($row['tingkat']) ?></td>
-            <td><?= esc($row['nama_tahun_ajaran']) ?></td>
-            <td><?= $row['nama_wali_kelas'] ? esc($row['nama_wali_kelas']) : '<span class="text-soft">Belum ada</span>' ?></td>
-            <td>
+            <td class="text-soft" data-label="">#<?= esc($i + 1) ?></td>
+            <td class="td-card-title"><?= esc($row['nama_kelas']) ?></td>
+            <td data-label="Tingkat"><?= esc($row['tingkat']) ?></td>
+            <td data-label="Tahun ajaran"><?= esc($row['nama_tahun_ajaran']) ?></td>
+            <td data-label="Wali kelas"><?= $row['nama_wali_kelas'] ? esc($row['nama_wali_kelas']) : '<span class="text-soft">Belum ada</span>' ?></td>
+            <td data-label="Jumlah siswa">
+              <a href="<?= base_url('master/siswa?kelas_id=' . $row['id']) ?>" class="role-badge" title="Lihat daftar siswa kelas ini">
+                <?= esc($row['jumlah_siswa']) ?> siswa
+              </a>
+            </td>
+            <td class="td-card-actions" data-label="">
               <div class="row-actions">
                 <button type="button" class="btn-icon" onclick='fillEditKelas(<?= json_encode($row) ?>)'>
                   <svg class="icon-sm"><use href="#i-edit"/></svg> Edit

@@ -23,12 +23,14 @@ class Siswa extends BaseController
     public function index()
     {
         $kelasModel = new KelasModel();
+        $kelasList  = $kelasModel->getWithTahunAjaran();
 
         $data = [
             'title'   => 'Siswa',
             'content' => view('master/siswa/index', [
-                'items' => $this->model->getWithKelas(),
-                'kelas' => $kelasModel->getWithTahunAjaran(),
+                'items'   => $this->model->getWithKelas(),
+                'kelas'   => $kelasList,
+                'tingkatList' => array_values(array_unique(array_filter(array_column($kelasList, 'tingkat')))),
             ]),
         ];
 
@@ -63,6 +65,12 @@ class Siswa extends BaseController
         $id = (int) $this->request->getPost('id');
 
         $ok = $this->model->update($id, [
+            // 'id' WAJIB disertakan di sini juga (bukan cuma parameter pertama
+            // update()) — placeholder {id} di aturan is_unique CUMA diganti
+            // kalau 'id' ada sebagai KEY di array data ini. doProtectFields()
+            // otomatis membuang key ini lagi sebelum benar-benar UPDATE ke
+            // database (karena tidak ada di $allowedFields), jadi aman.
+            'id'            => $id,
             'nis'           => $this->request->getPost('nis'),
             'nama'          => $this->request->getPost('nama'),
             'jenis_kelamin' => $this->request->getPost('jenis_kelamin'),
@@ -90,6 +98,34 @@ class Siswa extends BaseController
         (new AuditLogger())->log('hapus_siswa', 'Menghapus siswa #' . $id);
 
         return redirect()->to('/master/siswa')->with('message', 'Data siswa berhasil dihapus.');
+    }
+
+    /**
+     * Hapus BANYAK siswa sekaligus (dipilih lewat checkbox) — memanggil
+     * delete() SATU PER SATU (bukan bulk array) supaya perilakunya PERSIS
+     * sama dengan hapus satu-satu yang sudah teruji (soft delete, tetap bisa
+     * dipulihkan lewat Sampah), bukan menebak-nebak perilaku bulk-delete.
+     */
+    public function bulkDelete()
+    {
+        $ids = $this->request->getPost('ids');
+
+        if (empty($ids) || ! is_array($ids)) {
+            return redirect()->to('/master/siswa')->with('error', 'Tidak ada siswa yang dipilih.');
+        }
+
+        $ids = array_map('intval', $ids);
+
+        // Ambil nama-nama sebelum dihapus, buat catatan audit log yang jelas.
+        $namaTerhapus = array_column($this->model->whereIn('id', $ids)->findAll(), 'nama');
+
+        foreach ($ids as $id) {
+            $this->model->delete($id);
+        }
+
+        (new AuditLogger())->log('hapus_siswa_massal', count($ids) . ' siswa dihapus sekaligus: ' . implode(', ', array_slice($namaTerhapus, 0, 10)) . (count($namaTerhapus) > 10 ? ', dst.' : ''));
+
+        return redirect()->to('/master/siswa')->with('message', count($ids) . ' siswa berhasil dihapus.');
     }
 
     /**

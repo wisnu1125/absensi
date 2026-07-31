@@ -48,6 +48,7 @@ class HariLibur extends BaseController
         $id = (int) $this->request->getPost('id');
 
         $ok = $this->model->update($id, [
+            'id'         => $id,
             'tanggal'    => $this->request->getPost('tanggal'),
             'keterangan' => $this->request->getPost('keterangan'),
         ]);

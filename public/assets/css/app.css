@@ -4,10 +4,10 @@
    Font: Roboto. Tanpa framework (Bootstrap/Tailwind), murni custom.
    ============================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700;900&display=swap');
 
 :root {
-  /* ---- Deep Blue Ocean palette ---- */
+  /* ---- Deep Blue Ocean palette (TIDAK diubah — identitas visual dipertahankan) ---- */
   --navy-950: #061a2c;
   --navy-900: #0a2740;
   --navy-800: #0f3350;
@@ -19,13 +19,14 @@
   --teal-400: #17b8a2;
   --cyan-400: #3fd0e0;
 
-  --color-bg: #eef4f9;
+  --color-bg: #f6f8fa;
   --color-surface: #ffffff;
-  --color-surface-alt: #f5f9fc;
-  --color-border: #dbe6ef;
-  --color-text: #0e2438;
-  --color-text-muted: #57728a;
-  --color-text-soft: #93a8ba;
+  --color-surface-alt: #f3f6f8;
+  --color-border: #e6ebf0;
+  --color-border-strong: #d3dce3;
+  --color-text: #172433;
+  --color-text-muted: #5b6b7a;
+  --color-text-soft: #8b98a5;
 
   --color-primary: var(--ocean-500);
   --color-primary-hover: var(--navy-700);
@@ -39,17 +40,44 @@
   --color-warning-soft: #fdf3e2;
   --color-info: #2472a4;
   --color-info-soft: #e3f0f8;
+  --color-substitute: #8558c2;
+  --color-substitute-soft: #f2edfa;
+  --color-neutral: #64748b;
+  --color-neutral-soft: #eef1f5;
+
+  /* ---- Spacing scale, kelipatan 4px — dipakai konsisten di komponen baru/
+     yang direfaktor, menggantikan angka piksel ad-hoc yang sebelumnya
+     berbeda-beda tipis antar halaman (14px vs 16px vs 18px dst). ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
 
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --shadow-sm: 0 1px 3px rgba(10, 39, 64, .07);
-  --shadow-md: 0 8px 24px rgba(10, 39, 64, .12);
-  --shadow-lg: 0 16px 48px rgba(10, 39, 64, .18);
+  --radius-xl: 20px;
+
+  /* ---- Shadow berlapis (dua sisi: kontak dekat + sebaran jauh) terasa lebih
+     "premium" & organik dibanding satu shadow datar — dipakai gaya
+     Linear/Stripe/Vercel, bukan drop-shadow Bootstrap yang keras. ---- */
+  --shadow-xs: 0 1px 2px rgba(23, 36, 51, .04);
+  --shadow-sm: 0 1px 2px rgba(23, 36, 51, .03), 0 4px 10px rgba(23, 36, 51, .05);
+  --shadow-md: 0 2px 6px rgba(23, 36, 51, .04), 0 10px 28px rgba(23, 36, 51, .08);
+  --shadow-lg: 0 6px 16px rgba(23, 36, 51, .07), 0 20px 56px rgba(23, 36, 51, .14);
+  --shadow-focus: 0 0 0 3.5px var(--color-primary-soft);
 
   --sidebar-width: 264px;
   --topbar-height: 64px;
-  --transition: .18s cubic-bezier(.4,0,.2,1);
+  --touch-target: 44px;
+  --transition: .15s cubic-bezier(.4,0,.2,1);
+  --transition-slow: .25s cubic-bezier(.4,0,.2,1);
 }
 
 * { box-sizing: border-box; }
@@ -59,23 +87,27 @@ html, body {
   padding: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
   font-size: 14px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a { color: var(--color-primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
+a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; border-radius: 2px; }
 
-h1, h2, h3, h4 { margin: 0 0 6px; font-weight: 700; color: var(--navy-900); line-height: 1.3; letter-spacing: -.01em; }
-h1 { font-size: 21px; }
+h1, h2, h3, h4 { margin: 0 0 6px; font-weight: 700; color: var(--navy-900); line-height: 1.3; letter-spacing: -.015em; }
+h1 { font-size: 22px; letter-spacing: -.02em; }
 h2 { font-size: 17px; }
 h3 { font-size: 15px; }
 p  { margin: 0 0 8px; }
 
 .text-muted { color: var(--color-text-muted); }
 .text-soft  { color: var(--color-text-soft); font-size: 12px; }
+.text-caption { color: var(--color-text-soft); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.text-subtitle { color: var(--color-text-muted); font-size: 13px; font-weight: 500; }
 
 /* ---- Icon utility ---- */
 .icon, .icon-sm, .icon-lg {
@@ -100,13 +132,13 @@ p  { margin: 0 0 8px; }
   width: var(--sidebar-width);
   background: linear-gradient(180deg, var(--navy-950) 0%, var(--navy-900) 100%);
   color: #cfe0ee;
-  padding: 18px 12px 24px;
+  padding: 16px 10px 24px;
   position: fixed;
   top: 0; left: 0; bottom: 0;
   overflow-y: auto;
   z-index: 40;
   transform: translateX(-100%);
-  transition: transform var(--transition);
+  transition: transform var(--transition-slow);
   box-shadow: var(--shadow-lg);
 }
 .app-sidebar.open { transform: translateX(0); }
@@ -115,6 +147,7 @@ p  { margin: 0 0 8px; }
   display: none;
   position: fixed; inset: 0;
   background: rgba(6, 26, 44, .5);
+  backdrop-filter: blur(1px);
   z-index: 35;
 }
 .sidebar-backdrop.open { display: block; }
@@ -123,14 +156,14 @@ p  { margin: 0 0 8px; }
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 8px 10px 20px;
+  padding: 10px 10px 18px;
   border-bottom: 1px solid rgba(255,255,255,.08);
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .brand-mark {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-sm);
   background: linear-gradient(135deg, var(--teal-400), var(--ocean-500));
   color: #fff;
@@ -141,7 +174,7 @@ p  { margin: 0 0 8px; }
   box-shadow: 0 4px 10px rgba(20, 184, 166, .35);
 }
 
-.brand-text { font-weight: 700; font-size: 14.5px; line-height: 1.25; color: #fff; }
+.brand-text { font-weight: 700; font-size: 14.5px; line-height: 1.25; color: #fff; letter-spacing: -.01em; }
 .brand-text small { display: block; font-weight: 400; font-size: 11px; color: #9db6cc; margin-top: 1px; }
 
 .sidebar-close {
@@ -150,15 +183,15 @@ p  { margin: 0 0 8px; }
   padding: 4px; border-radius: var(--radius-sm); display: none;
 }
 
-.sidebar-nav { display: flex; flex-direction: column; gap: 1px; }
+.sidebar-nav { display: flex; flex-direction: column; gap: 2px; }
 
 .nav-section {
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: .07em;
   color: #6f8ca4;
-  padding: 18px 12px 6px;
+  padding: 22px 14px 8px;
 }
 
 .nav-item {
@@ -166,18 +199,29 @@ p  { margin: 0 0 8px; }
   align-items: center;
   gap: 11px;
   padding: 10px 12px;
+  min-height: var(--touch-target);
   border-radius: var(--radius-sm);
   color: #b9cddf;
   font-weight: 500;
   font-size: 13.5px;
   transition: background var(--transition), color var(--transition);
+  position: relative;
 }
 
 .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; text-decoration: none; }
-.nav-item.active { background: linear-gradient(90deg, var(--teal-500), var(--ocean-500)); color: #fff; box-shadow: 0 2px 8px rgba(13, 157, 138, .35); }
+.nav-item:focus-visible { outline: 2px solid var(--teal-400); outline-offset: -2px; }
+/* ---- Active: highlight solid lembut + garis aksen kiri tipis, gaya
+   Linear/Notion — bukan gradient tebal yg sebelumnya terasa berat/ramai. ---- */
+.nav-item.active { background: rgba(23, 184, 162, .14); color: #fff; font-weight: 600; }
+.nav-item.active::before {
+  content: ''; position: absolute; left: -10px; top: 8px; bottom: 8px; width: 3px;
+  border-radius: 0 3px 3px 0; background: linear-gradient(180deg, var(--teal-400), var(--ocean-400));
+}
 .nav-item.disabled { color: #55708a; cursor: default; }
 .nav-item.disabled:hover { background: none; color: #55708a; }
 .nav-item .icon { opacity: .9; }
+.nav-item { position: relative; }
+.nav-label { flex: 1 1 auto; min-width: 0; }
 
 .app-main {
   margin-left: 0;
@@ -195,7 +239,7 @@ p  { margin: 0 0 8px; }
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -205,15 +249,16 @@ p  { margin: 0 0 8px; }
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
   color: var(--navy-800);
-  width: 38px; height: 38px;
+  width: var(--touch-target); height: var(--touch-target);
   border-radius: var(--radius-sm);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
 }
 .menu-toggle:hover { background: var(--color-primary-soft); border-color: var(--color-primary); color: var(--color-primary); }
 
-.topbar-title { font-weight: 700; font-size: 15px; color: var(--navy-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-title { font-weight: 700; font-size: 15px; letter-spacing: -.01em; color: var(--navy-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .topbar-user { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 
@@ -231,26 +276,30 @@ p  { margin: 0 0 8px; }
   border-radius: 999px;
   white-space: nowrap;
 }
+.role-badge-block { display: inline-block; margin-bottom: 6px; text-transform: none; }
+.role-badge-warning { background: var(--color-warning-soft); color: var(--color-warning); }
 
 .user-avatar {
   width: 36px; height: 36px; border-radius: 50%;
   background: linear-gradient(135deg, var(--teal-400), var(--ocean-500));
   color: #fff; display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 14px; flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(20, 82, 121, .25);
 }
 
 .btn-logout {
   display: flex; align-items: center; justify-content: center;
   color: var(--color-text-muted);
   border: 1px solid var(--color-border);
-  width: 38px; height: 38px;
+  width: var(--touch-target); height: var(--touch-target);
   border-radius: var(--radius-sm);
   flex-shrink: 0;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
 }
 .btn-logout:hover { border-color: var(--color-danger); color: var(--color-danger); text-decoration: none; background: var(--color-danger-soft); }
 .btn-logout span { display: none; }
 
-.app-content { padding: 18px 16px 40px; }
+.app-content { padding: var(--space-4) var(--space-4) 40px; }
 
 /* ============================================================================
    CARDS
@@ -259,22 +308,141 @@ p  { margin: 0 0 8px; }
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 18px;
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-5);
+  box-shadow: none;
+  transition: box-shadow var(--transition), border-color var(--transition);
 }
+.card-muted { opacity: .6; }
+.card-footer { margin-top: 12px; }
 
-.card-title { font-weight: 700; margin-bottom: 4px; font-size: 14px; color: var(--navy-900); }
+.card-title { font-weight: 700; margin-bottom: 4px; font-size: 14px; color: var(--navy-900); line-height: 1.35; letter-spacing: -.005em; }
 
 .card-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 14px;
-  margin-top: 18px;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
 }
 
-.page-header { margin-bottom: 16px; }
+.page-header { margin-bottom: var(--space-5); }
 .page-header h1 { display: flex; align-items: center; gap: 10px; }
+.page-header p { margin-bottom: 0; }
+
+/* ---- Section header: konsisten dipakai tiap kali ada judul h2 di tengah halaman
+   (Dashboard, Laporan, dst) — mengganti pola inline style="margin-top:28px" yang
+   sebelumnya diulang-ulang di banyak view. ---- */
+.section { margin-top: var(--space-8); }
+.section:first-child { margin-top: 0; }
+.section-title { display: flex; align-items: center; gap: 8px; margin-bottom: var(--space-4); }
+.section-title h2 { margin: 0; }
+
+/* ---- Stat card: dipakai Dashboard (statistik admin/kepsek), menggantikan
+   inline style font-size/text-transform yang sebelumnya diulang di tiap sel.
+   Slot ikon opsional (.stat-icon) di kanan-atas, gaya kartu ringkasan modern
+   ala Stripe/Vercel dashboard alih-alih angka polos. ---- */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: var(--space-4); }
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: none;
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+.stat-card:hover { box-shadow: var(--shadow-sm); border-color: var(--color-border-strong); }
+.stat-icon {
+  width: 38px; height: 38px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-primary-soft); color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+.stat-label { font-size: 12.5px; font-weight: 600; color: var(--color-text-muted); margin-bottom: 6px; }
+.stat-value { font-size: 25px; font-weight: 700; color: var(--color-text); line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: -.015em; }
+.stat-value.sm { font-size: 18px; }
+.stat-value.text-success { color: var(--color-success); }
+.stat-value.text-warning { color: var(--color-warning); }
+.stat-value.text-danger  { color: var(--color-danger); }
+.stat-trend { display: flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; color: var(--color-text-soft); margin-top: 7px; }
+.stat-trend.up { color: var(--color-success); }
+.stat-trend.down { color: var(--color-danger); }
+
+/* ---- Progress bar: dipakai Dashboard (persentase kehadiran, grafik ringkas). ---- */
+.progress-track { background: var(--color-surface-alt); border-radius: 999px; height: 8px; overflow: hidden; }
+.progress-track.sm { height: 6px; }
+
+/* ---- Dashboard: layout 2 kolom (utama + rail kanan berisi kalender mini +
+   event terdekat), gaya referensi SaaS dashboard modern — bukan satu kolom
+   panjang. Rail (kalender/agenda/pengumuman) tetap di BAWAH konten utama di
+   mobile — sama seperti sebelumnya, cuma urutannya di desktop yang dibalik
+   (row-reverse) supaya rail di KANAN, konten utama di KIRI. Urutan DOM
+   (rail dulu baru main) TIDAK diubah, jadi perilaku mobile otomatis tetap
+   benar tanpa perlu disentuh. ---- */
+.dash-layout { display: flex; flex-direction: column-reverse; gap: var(--space-5); }
+.dash-main { min-width: 0; display: flex; flex-direction: column; gap: var(--space-5); }
+.dash-rail { display: flex; flex-direction: column; gap: var(--space-4); }
+
+@media (min-width: 960px) {
+  .dash-layout { flex-direction: row-reverse; align-items: flex-start; }
+  .dash-main { flex: 1 1 auto; }
+  .dash-rail { flex: 0 0 296px; position: sticky; top: calc(var(--topbar-height) + var(--space-4)); }
+}
+
+.mini-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4); }
+.mini-cal-title { font-weight: 700; font-size: 13.5px; color: var(--color-text); }
+.mini-cal-nav { display: flex; gap: 2px; }
+.mini-cal-nav a { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--color-text-muted); }
+.mini-cal-nav a:hover { background: var(--color-surface-alt); text-decoration: none; color: var(--color-text); }
+.mini-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.mini-cal-dow { font-size: 9px; font-weight: 700; text-align: center; color: var(--color-text-soft); padding-bottom: 6px; letter-spacing: .02em; }
+.mini-cal-day {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm); font-size: 11px; font-weight: 500; color: var(--color-text);
+  position: relative;
+}
+.mini-cal-day.is-outside { color: var(--color-text-soft); opacity: .35; }
+.mini-cal-day.is-today { background: var(--color-primary); color: #fff; font-weight: 700; }
+.mini-cal-day-dot { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; }
+.mini-cal-day.is-today .mini-cal-day-dot { background: #fff; }
+
+/* ---- Dashboard Admin "lengkap" — grid 2/3 kolom, feed aktivitas, status
+   dot monitoring, baris progress mini, dan item-item widget rail kanan
+   (pengumuman, deadline, siswa perlu perhatian). ---- */
+.dash-grid-2 { display: grid; grid-template-columns: 1fr; gap: var(--space-4); align-items: start; }
+.dash-grid-3 { display: grid; grid-template-columns: 1fr; gap: var(--space-4); align-items: start; }
+@media (min-width: 860px) {
+  .dash-grid-2 { grid-template-columns: 1fr 1fr; }
+  .dash-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+.activity-item { display: flex; gap: 11px; padding: 9px 0; border-bottom: 1px solid var(--color-border); }
+.activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+.activity-time { font-size: 11px; color: var(--color-text-soft); font-variant-numeric: tabular-nums; flex-shrink: 0; width: 36px; padding-top: 2px; }
+.activity-icon { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.activity-body { min-width: 0; font-size: 12.5px; line-height: 1.5; }
+.activity-body b { font-weight: 700; color: var(--color-text); }
+
+.status-dot { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; }
+.status-dot.sudah { background: var(--color-success-soft); color: var(--color-success); }
+.status-dot.sebagian { background: var(--color-warning-soft); color: var(--color-warning); }
+.status-dot.belum, .status-dot.tidak_ada { background: var(--color-danger-soft); color: var(--color-danger); }
+
+.mini-progress-row { margin-bottom: 13px; }
+.mini-progress-row:last-child { margin-bottom: 0; }
+.mini-progress-label { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 5px; }
+.mini-progress-label b { font-weight: 600; color: var(--color-text); }
+
+.rail-list-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--color-border); }
+.rail-list-item:last-child { border-bottom: none; padding-bottom: 0; }
+.rail-list-icon { width: 30px; height: 30px; border-radius: var(--radius-sm); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.rail-list-time { font-size: 11px; font-weight: 700; color: var(--color-text-soft); width: 34px; flex-shrink: 0; padding-top: 6px; }
+
+.donut-legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; margin-bottom: 7px; }
+.donut-legend-item:last-child { margin-bottom: 0; }
+.donut-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.donut-legend-label { flex: 1; color: var(--color-text-muted); }
+.donut-legend-value { font-weight: 700; color: var(--color-text); }
+.progress-fill { height: 100%; border-radius: 999px; transition: width .6s cubic-bezier(.4,0,.2,1); }
 
 /* ============================================================================
    BUTTONS
@@ -286,22 +454,27 @@ p  { margin: 0 0 8px; }
   justify-content: center;
   gap: 7px;
   padding: 10px 16px;
+  min-height: var(--touch-target);
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 13.5px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition), filter var(--transition);
   font-family: inherit;
+  letter-spacing: -.003em;
 }
 
 .btn:hover { text-decoration: none; }
 .btn:active { transform: translateY(1px); }
-.btn-primary { background: linear-gradient(135deg, var(--ocean-500), var(--navy-700)); color: #fff; box-shadow: 0 3px 10px rgba(20, 82, 121, .3); }
-.btn-primary:hover { box-shadow: 0 5px 16px rgba(20, 82, 121, .4); filter: brightness(1.05); }
+.btn:focus-visible { outline: 2.5px solid var(--color-primary); outline-offset: 2px; }
+.btn-primary { background: var(--color-primary); color: #fff; box-shadow: 0 1px 2px rgba(20, 82, 121, .15); }
+.btn-primary:hover { background: var(--color-primary-hover); box-shadow: 0 2px 6px rgba(20, 82, 121, .2); }
 .btn-outline { background: var(--color-surface); border-color: var(--color-border); color: var(--navy-800); }
 .btn-outline:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-soft); }
-.btn-sm { padding: 7px 12px; font-size: 12.5px; }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--color-text-muted); }
+.btn-ghost:hover { background: var(--color-surface-alt); color: var(--navy-800); }
+.btn-sm { padding: 7px 12px; min-height: 36px; font-size: 12.5px; }
 .btn-block { width: 100%; }
 .btn:disabled { opacity: .55; cursor: not-allowed; }
 
@@ -353,7 +526,7 @@ p  { margin: 0 0 8px; }
 
 .auth-form input {
   width: 100%;
-  padding: 11px 13px 11px 38px;
+  padding: 10px 13px 10px 38px;
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-size: 14px;
@@ -400,82 +573,577 @@ p  { margin: 0 0 8px; }
    TABEL
    ============================================================================ */
 
-.table-wrap { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); -webkit-overflow-scrolling: touch; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); -webkit-overflow-scrolling: touch; }
 table.table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
-table.table th, table.table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--color-border); }
-table.table th { font-weight: 700; color: var(--navy-700); background: var(--color-surface-alt); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+table.table th, table.table td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--color-border); }
+table.table th { font-weight: 700; color: var(--navy-700); background: var(--color-surface-alt); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; position: sticky; top: 0; z-index: 1; }
 table.table tbody tr:last-child td { border-bottom: none; }
 table.table tbody tr { transition: background var(--transition); }
 table.table tbody tr:hover { background: var(--color-surface-alt); }
+/* ---- Nonaktifkan sorot SEBARIS PENUH utk tabel bergaya MATRIX (mis. Grid
+   Jadwal: tiap SEL mewakili kelas+jam yang berbeda-beda, bukan "lebih
+   banyak data dari record yang sama" seperti tabel data biasa) — sorot
+   sebaris penuh di situ jadi menyesatkan (seolah banyak kolom/kelas ikut
+   ke-hover padahal cuma SATU sel yang sedang disentuh pointer). ---- */
+.table-grid-matrix table.table tbody tr:hover { background: transparent; }
+
+/* ---- Skeleton loading — dipakai saat konten sedang dimuat async (mis. widget
+   yang butuh fetch), gaya shimmer halus alih-alih spinner polos. ---- */
+@keyframes skeleton-shimmer { 0% { background-position: -200px 0; } 100% { background-position: calc(200px + 100%) 0; } }
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface-alt) 0%, var(--color-border) 50%, var(--color-surface-alt) 100%);
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ---- Timeline — dipakai Dashboard Guru ("Jadwal Hari Ini") gaya linimasa
+   vertikal ala referensi Notion/Linear, alih-alih grid kartu terpisah. Warna
+   titik ditentukan lewat --dot-color inline per item (sesuai status sesi). ---- */
+.timeline { position: relative; }
+.timeline-item { position: relative; padding-left: 30px; padding-bottom: var(--space-5); }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item::before {
+  content: ''; position: absolute; left: 5px; top: 22px; bottom: -2px; width: 2px;
+  background: var(--color-border);
+}
+.timeline-item:last-child::before { display: none; }
+.timeline-dot {
+  position: absolute; left: 0; top: 3px; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--dot-color, var(--color-text-soft));
+  box-shadow: 0 0 0 3px var(--color-surface);
+}
+.timeline-time { font-size: 11.5px; font-weight: 700; color: var(--color-text-soft); margin-bottom: 5px; font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.timeline-card {
+  background: var(--color-surface-alt); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: var(--space-4);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.timeline-card:hover { border-color: var(--color-border-strong); box-shadow: var(--shadow-xs); }
+.timeline-card.is-muted { opacity: .65; }
+
+/* ---- Jadwal Hari Ini (guru) — kartu baris horizontal (bukan timeline
+   bertitik), gaya referensi baru: waktu, ikon, info sesi, badge status,
+   tombol aksi, semuanya dalam satu baris di desktop, wrap rapi di mobile. ---- */
+.jadwal-list { display: flex; flex-direction: column; gap: 10px; }
+.jadwal-item {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 14px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  transition: border-color var(--transition), background var(--transition);
+}
+.jadwal-item.is-current { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.jadwal-item.is-muted { opacity: .68; }
+.jadwal-item-time { flex-shrink: 0; width: 58px; font-size: 12.5px; font-weight: 700; color: var(--color-text); font-variant-numeric: tabular-nums; line-height: 1.45; }
+.jadwal-item-time small { display: block; font-weight: 400; color: var(--color-text-soft); font-size: 11px; }
+.jadwal-item-icon { width: 34px; height: 34px; border-radius: var(--radius-sm); flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary-soft); color: var(--color-primary); }
+.jadwal-item-body { flex: 1 1 140px; min-width: 140px; }
+.jadwal-item-title { font-weight: 700; font-size: 13.5px; color: var(--color-text); }
+.jadwal-item-sub { font-size: 12px; color: var(--color-text-muted); display: flex; gap: 10px; margin-top: 2px; flex-wrap: wrap; }
+.jadwal-item-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: auto; }
+@media (max-width: 480px) {
+  .jadwal-item-actions { margin-left: 0; width: 100%; }
+  .jadwal-item-actions .btn { flex: 1; }
+}
+
+/* ---- Jam berjalan di topbar (guru) — murni JS, tidak butuh apapun dari
+   server, cukup Intl.DateTimeFormat lokal browser. ---- */
+.live-clock { display: inline-flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 999px; background: var(--color-surface-alt); border: 1px solid var(--color-border); font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--color-text); white-space: nowrap; }
+
+/* ---- Tombol aksi mengambang — "lanjutkan aktivitas" ke sesi yang paling
+   butuh perhatian saat ini. Disembunyikan kalau tidak ada aksi mendesak
+   (semua sesi hari ini sudah selesai / tidak ada jadwal). ---- */
+.floating-cta {
+  position: fixed; right: var(--space-4); bottom: var(--space-4); z-index: 30;
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 18px; border-radius: 999px;
+  background: var(--color-primary); color: #fff;
+  box-shadow: var(--shadow-lg); font-weight: 600; font-size: 13px;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.floating-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(20,82,121,.35); text-decoration: none; color: #fff; }
+.floating-cta svg { flex-shrink: 0; }
+
+/* ---- Notifikasi toast — dipakai submit AJAX (tanpa reload halaman) yang
+   TIDAK BISA mengandalkan flash message CI4 biasa (itu baru muncul setelah
+   reload). Dipanggil lewat JS global tampilkanToast(pesan, jenis). ---- */
+.toast-container { position: fixed; top: var(--space-4); right: var(--space-4); z-index: 200; display: flex; flex-direction: column; gap: 10px; max-width: 360px; width: calc(100% - 32px); }
+.toast {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 14px 16px; border-radius: var(--radius-md);
+  background: var(--color-surface); box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border); border-left: 3px solid var(--color-primary);
+  animation: toast-in .25s cubic-bezier(.4,0,.2,1);
+  font-size: 13px; line-height: 1.5;
+}
+.toast.toast-success { border-left-color: var(--color-success); }
+.toast.toast-error { border-left-color: var(--color-danger); }
+.toast-icon { flex-shrink: 0; margin-top: 1px; }
+.toast.toast-success .toast-icon { color: var(--color-success); }
+.toast.toast-error .toast-icon { color: var(--color-danger); }
+.toast-body { flex: 1; color: var(--color-text); }
+.toast-close { flex-shrink: 0; cursor: pointer; color: var(--color-text-soft); background: none; border: none; padding: 0; line-height: 1; }
+
+/* ---- Modal konfirmasi generik — dipakai ganti confirm() bawaan browser
+   yang tampilannya tidak konsisten dgn desain aplikasi. Markup di
+   layouts/main.php, dipicu lewat JS global konfirmasiAksi(pesan, callback). ---- */
+.konfirmasi-icon {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  background: var(--color-danger-soft); color: var(--color-danger);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto var(--space-3);
+}
+.toast.toast-out { animation: toast-out .2s ease forwards; }
+@keyframes toast-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toast-out { to { opacity: 0; transform: translateX(20px); } }
+@media (max-width: 480px) {
+  .toast-container { left: var(--space-4); right: var(--space-4); max-width: none; }
+}
+
+/* ---- Skala tipografi widget dashboard, DISEDERHANAKAN — sebelumnya ada 5
+   ukuran font berbeda-beda tipis (10.5/11/11.5/12/12.5px) yang bikin
+   terasa berantakan. Sekarang cuma 2 tingkat: judul & meta, dipakai
+   konsisten di semua widget Dashboard (Riwayat, Pengingat, Aksi Cepat,
+   dst) alih-alih style inline yang beda-beda tiap baris. ---- */
+.dash-item-title { font-size: 13.5px; font-weight: 600; color: var(--color-text); line-height: 1.45; }
+.dash-item-meta { font-size: 12px; color: var(--color-text-soft); line-height: 1.5; margin-top: 2px; }
+
+/* ---- Kartu "Progress Hari Ini" (guru) — 4 mini-stat dgn lebih banyak
+   napas dibanding grid rapat sebelumnya. ---- */
+.mini-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.mini-stat {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.mini-stat-icon {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: var(--space-2);
+}
+.mini-stat-label { font-size: 11.5px; font-weight: 600; color: var(--color-text-soft); margin-bottom: 4px; }
+.mini-stat-value { font-size: 19px; font-weight: 700; color: var(--color-text); line-height: 1.2; font-variant-numeric: tabular-nums; }
+.mini-stat-caption { font-size: 11px; color: var(--color-text-soft); margin-top: 3px; }
+
+/* ---- Aksi Cepat — sebelumnya 100% inline style tanpa class sama sekali. ---- */
+.quick-action-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--space-3); }
+.quick-action-item {
+  display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
+  padding: var(--space-4) var(--space-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  text-align: center;
+  color: var(--color-text);
+  transition: background var(--transition), border-color var(--transition);
+}
+.quick-action-item:hover { background: var(--color-surface-alt); border-color: var(--color-border-strong); text-decoration: none; color: var(--color-text); }
+.quick-action-icon {
+  width: 36px; height: 36px; border-radius: var(--radius-sm);
+  background: var(--color-primary-soft); color: var(--color-primary);
+  display: flex; align-items: center; justify-content: center;
+}
+.quick-action-label { font-size: 11.5px; font-weight: 600; line-height: 1.3; }
+
+/* ---- Item widget rail generik (Riwayat, Pengingat) — dipakai bareng
+   .dash-item-title/.dash-item-meta di atas utk konsistensi antar widget. ---- */
+.dash-list-item { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--color-border); text-decoration: none; }
+.dash-list-item:last-child { border-bottom: none; padding-bottom: 0; }
+.dash-list-item:hover { text-decoration: none; }
+.dash-list-icon { width: 30px; height: 30px; border-radius: var(--radius-sm); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+/* ---- Pill status kehadiran (Hadir/Sakit/Izin/dst) — dipakai form Presensi &amp;
+   Revisi Presensi, disentralkan di sini (sebelumnya diulang inline di 2 file
+   terpisah) dan disegarkan target sentuhnya ke 40px+ utk mobile. ---- */
+.status-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 9px 14px; min-height: 40px;
+  border-radius: 999px; border: 1.5px solid var(--color-border);
+  cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--color-text-muted);
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.pill:hover { border-color: var(--color-border-strong); }
+.pill input { position: absolute; opacity: 0; width: 0; height: 0; }
+.pill-hadir.is-checked { background: var(--color-success-soft); border-color: var(--color-success); color: var(--color-success); }
+.pill-sakit.is-checked { background: var(--color-info-soft); border-color: var(--color-info); color: var(--color-info); }
+.pill-izin.is-checked, .pill-terlambat.is-checked { background: var(--color-warning-soft); border-color: var(--color-warning); color: var(--color-warning); }
+.pill-alpha.is-checked { background: var(--color-danger-soft); border-color: var(--color-danger); color: var(--color-danger); }
+.catatan-input { width: 100%; min-width: 140px; padding: 9px 12px; min-height: 40px; border: 1.5px solid var(--color-border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; transition: border-color var(--transition), box-shadow var(--transition); }
+.catatan-input:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--shadow-focus); }
+
+/* ---- Sticky action bar mobile — tombol aksi utama "menempel" di bawah layar
+   HP supaya tidak perlu scroll ke bawah dulu setelah mengisi form panjang
+   (presensi banyak siswa, dst). Desktop tetap pakai .form-actions biasa (di
+   luar breakpoint ini, class ini tidak berefek apa-apa). ---- */
+@media (max-width: 719px) {
+  .sticky-action-mobile {
+    position: sticky; bottom: 0; left: 0; right: 0;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: 12px var(--space-4) calc(12px + env(safe-area-inset-bottom, 0px));
+    margin: var(--space-5) calc(var(--space-4) * -1) calc(40px * -1);
+    box-shadow: 0 -4px 16px rgba(23, 36, 51, .08);
+    z-index: 10;
+  }
+  .sticky-action-mobile .btn { width: 100%; }
+}
+
+/* ============================================================================
+   TABEL → KARTU DI MOBILE (pola dipakai ulang di semua tabel data) — daripada
+   memaksa scroll horizontal, baris tabel berubah jadi kartu bertumpuk di
+   layar sempit. Aktifkan dengan menambah class "table-responsive-cards" di
+   .table-wrap, lalu beri atribut data-label="Nama Kolom" di tiap <td>
+   (kosongkan data-label="" utk sel yang tidak perlu label, mis. checkbox).
+   Sel judul kartu (mis. Nama) pakai class "td-card-title", sel aksi di
+   bagian bawah kartu pakai class "td-card-actions".
+   ============================================================================ */
+@media (max-width: 719px) {
+  .table-responsive-cards { border: none; background: transparent; box-shadow: none; }
+  .table-responsive-cards table.table { min-width: 0; }
+  .table-responsive-cards table.table thead { display: none; }
+  .table-responsive-cards table.table tbody tr {
+    display: block;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+    box-shadow: var(--shadow-xs);
+  }
+  .table-responsive-cards table.table tbody tr:hover { background: var(--color-surface); }
+  .table-responsive-cards table.table tbody tr:last-child { margin-bottom: 0; }
+  .table-responsive-cards table.table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--color-border);
+    text-align: right;
+  }
+  .table-responsive-cards table.table td:last-child { border-bottom: none; }
+  .table-responsive-cards table.table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 11px;
+    color: var(--color-text-soft);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    text-align: left;
+    flex-shrink: 0;
+  }
+  .table-responsive-cards table.table td[data-label=""] { display: none; }
+  /* ---- Sel dengan konten kompleks (mis. 5 pill status kehadiran) — label
+     di ATAS, nilai FULL WIDTH di bawahnya, bukan berdesakan di sebelah
+     label seperti sel biasa. Dipakai Presensi & Revisi Presensi. ---- */
+  .table-responsive-cards table.table td.td-stack {
+    display: block; text-align: left;
+  }
+  .table-responsive-cards table.table td.td-stack::before {
+    display: block; margin-bottom: 8px;
+  }
+  .table-responsive-cards table.table td.td-card-title {
+    display: block; text-align: left; font-weight: 700; font-size: 14.5px; color: var(--navy-900);
+    padding: 0 0 10px; margin-bottom: 4px; border-bottom: 1px solid var(--color-border);
+  }
+  .table-responsive-cards table.table td.td-card-title::before { content: none; }
+  .table-responsive-cards table.table td.td-card-actions {
+    display: flex; justify-content: flex-end; text-align: right; padding-top: 10px; border-bottom: none;
+  }
+  .table-responsive-cards table.table td.td-card-actions::before { content: none; }
+  .table-responsive-cards table.table td.td-card-actions .row-actions { justify-content: flex-end; width: 100%; }
+}
+
+/* ---- Kolom pertama sticky — utk tabel MATRIX lebar (mis. Grid Jadwal:
+   baris=jam, kolom=kelas) yang TIDAK COCOK ditumpuk jadi kartu (akan
+   menghilangkan makna spasial barisxkolomnya). Kolom pertama (label jam/
+   hari) tetap terlihat saat digeser horizontal, jadi tetap tahu "baris
+   yang mana ini" walau sudah scroll jauh ke kanan. ---- */
+.table-sticky-col table.table th:first-child,
+.table-sticky-col table.table td:first-child {
+  position: sticky; left: 0; z-index: 2;
+  background: var(--color-surface-alt);
+  box-shadow: 1px 0 0 var(--color-border);
+}
+.table-sticky-col table.table th:first-child { z-index: 3; }
+.table-sticky-col { position: relative; }
+.table-sticky-col::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0; left: 0; width: 12px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(23,36,51,.06), transparent);
+}
 
 /* ============================================================================
    TOOLBAR / MODAL / FORM / BUTTON-ICON (dipakai Data Master)
    ============================================================================ */
 
-.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: var(--space-4); flex-wrap: wrap; }
 .toolbar-search {
   padding: 10px 14px 10px 36px;
+  min-height: var(--touch-target);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-size: 13.5px;
   min-width: 0;
   flex: 1 1 220px;
   font-family: inherit;
+  background-color: var(--color-surface);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2393a8ba' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: 12px center;
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
-.toolbar-search:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3.5px var(--color-primary-soft); }
+.toolbar-search:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--shadow-focus); }
 
 .modal {
   display: none;
   position: fixed;
   inset: 0;
   background: rgba(6, 26, 44, .55);
+  backdrop-filter: blur(2px);
   align-items: flex-end;
   justify-content: center;
   z-index: 100;
   padding: 0;
+  animation: modal-fade-in var(--transition-slow);
 }
+@keyframes modal-fade-in { from { opacity: 0; } to { opacity: 1; } }
 .modal.open { display: flex; }
 .modal-box {
   background: var(--color-surface);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   width: 100%;
   max-width: 480px;
-  max-height: 92vh;
+  max-height: 88vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
-  padding: 22px 20px 20px;
+  padding: var(--space-5) var(--space-5) var(--space-5);
+  animation: modal-slide-up var(--transition-slow);
 }
+@keyframes modal-slide-up { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .modal-box.modal-lg { max-width: 640px; }
 .modal-box h3 { margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; flex-wrap: wrap-reverse; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: var(--space-5); flex-wrap: wrap-reverse; }
 .modal-actions .btn { flex: 1 1 auto; }
 
-.form-group { margin-bottom: 14px; }
+/* ---- Base style untuk SEMUA <select>, termasuk yang di luar .form-group
+   (mis. dropdown filter di toolbar seperti Sampah, Tukar Jadwal admin, Siswa).
+   .form-group select di atas tetap menang kalau ada (lebih spesifik), ini
+   cuma jaring pengaman supaya select TIDAK PERNAH tampil polos gaya browser. ---- */
+select {
+  padding: 10px 12px;
+  min-height: var(--touch-target);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-family: inherit;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+select:hover { border-color: var(--color-border-strong); }
+
+/* ---- Fallback global utk SEMUA input teks & textarea, sama seperti select
+   di atas — jaring pengaman supaya input APAPUN, di halaman manapun, TIDAK
+   PERNAH tampil polos gaya browser default walau lupa dibungkus .form-group
+   (mis. input inline di dalam tabel/kartu seperti Penilaian Harian, Master
+   TP). .form-group input di bawah tetap menang kalau ada (sama spesifik,
+   urutan CSS-nya belakangan) tapi nilainya identik jadi hasilnya konsisten. ---- */
+input[type="text"], input[type="date"], input[type="time"], input[type="datetime-local"],
+input[type="number"], input[type="email"], input[type="tel"], input[type="password"],
+input[type="search"], input[type="url"], textarea {
+  padding: 10px 12px;
+  min-height: var(--touch-target);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-family: inherit;
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+textarea { min-height: 72px; padding-top: 10px; resize: vertical; }
+input[type="text"]:hover, input[type="date"]:hover, input[type="time"]:hover, input[type="datetime-local"]:hover,
+input[type="number"]:hover, input[type="email"]:hover, input[type="tel"]:hover, input[type="password"]:hover,
+input[type="search"]:hover, input[type="url"]:hover, textarea:hover { border-color: var(--color-border-strong); }
+input[type="text"]:focus, input[type="date"]:focus, input[type="time"]:focus, input[type="datetime-local"]:focus,
+input[type="number"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="password"]:focus,
+input[type="search"]:focus, input[type="url"]:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+input::placeholder, textarea::placeholder { color: var(--color-text-soft); }
+
+.form-group { margin-bottom: var(--space-4); }
 .form-group label { display: block; font-size: 12.5px; font-weight: 600; color: var(--navy-800); margin-bottom: 6px; }
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
   padding: 10px 12px;
+  min-height: var(--touch-target);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-size: 14px;
   font-family: inherit;
   background: var(--color-surface);
   color: var(--color-text);
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
+.form-group textarea { min-height: 72px; padding-top: 10px; }
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover { border-color: var(--color-border-strong); }
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3.5px var(--color-primary-soft);
+  box-shadow: var(--shadow-focus);
 }
-.form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
-.form-hint { font-size: 11.5px; color: var(--color-text-soft); margin-top: 4px; }
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: var(--color-text-soft); }
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled { background: var(--color-surface-alt); color: var(--color-text-soft); cursor: not-allowed; }
+.form-row { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+.form-hint { font-size: 11.5px; color: var(--color-text-soft); margin-top: 4px; line-height: 1.5; }
+
+/* ---- Checkbox & radio kustom — sebelumnya kotak/bulat default browser yang
+   ukuran & gayanya beda-beda tiap OS/browser, sekarang konsisten & sengaja
+   dibuat cukup besar (18px) supaya nyaman disentuh di HP. ---- */
+input[type="checkbox"], input[type="radio"] {
+  width: 18px; height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.checkbox-label, .radio-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 500; color: var(--color-text);
+  cursor: pointer; min-height: var(--touch-target);
+}
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+
+/* ---- Tombol aksi di akhir form HALAMAN PENUH (bukan modal) — presensi, jurnal,
+   revisi, dst. Modal punya .modal-actions sendiri; ini versi untuk form biasa. ---- */
+.form-actions { margin-top: var(--space-5); display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+/* ---- Sel grid jadwal (dipakai Jadwal Mengajar grid & Kalender guru) — konten
+   di dalam <td> grid hari x jam. Sebelumnya font-size beda tipis (12px vs
+   12.5px) antar dua halaman ini karena diketik inline terpisah; disatukan di sini. ---- */
+.grid-cell-title { font-weight: 700; font-size: 12.5px; color: var(--navy-900); }
+.grid-cell-empty { user-select: none; transition: background var(--transition); }
+.grid-cell-empty:hover { background: var(--color-surface-alt); }
+.grid-cell-empty.is-selecting { background: var(--color-primary-soft); color: var(--color-primary); box-shadow: inset 0 0 0 1.5px var(--color-primary); }
+.grid-cell-note { font-size: 10.5px; font-weight: 600; margin-top: 2px; }
+.grid-cell-note.text-warning { color: var(--color-warning); }
+.grid-cell-note.text-primary { color: var(--color-primary); }
+
+/* ---- Pagination (dipakai Audit Log, siap dipakai lagi kalau tabel lain ditambah pagination). ---- */
+.pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; flex-wrap: wrap; gap: 10px; }
+.pagination-links { display: flex; gap: 8px; }
+
+/* ============================================================================
+   KALENDER — legenda, sel status, dan highlight kolom hari ini.
+   ============================================================================ */
+
+/* ---- Toolbar kalender ala Notion Calendar: tombol nav bulat minimal, tipografi bersih. ---- */
+.kal-nav-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  color: var(--color-text); cursor: pointer; transition: background var(--transition), border-color var(--transition);
+  font-size: 15px; line-height: 1;
+}
+.kal-nav-btn:hover { background: var(--color-surface-alt); border-color: var(--color-text-soft); }
+.kal-nav-btn.is-disabled { opacity: .35; cursor: not-allowed; }
+.kal-nav-btn.is-disabled:hover { background: var(--color-surface); border-color: var(--color-border); }
+
+/* ---- Pill hitungan ringkas di toolbar (mis. "5 Selesai") — dot warna + angka + label. ---- */
+/* ---- Tab hari (dipakai Jam Pelajaran per-hari) — baris tombol sederhana,
+   satu aktif dengan garis bawah aksen. ---- */
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tab-btn {
+  padding: 8px 14px;
+  border: none; background: transparent;
+  border-bottom: 2.5px solid transparent;
+  font-size: 13px; font-weight: 600; color: var(--color-text-soft);
+  cursor: pointer; transition: color var(--transition), border-color var(--transition);
+}
+.tab-btn:hover { color: var(--color-text); }
+.tab-btn.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+.kal-count-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; background: var(--color-surface-alt); border: 1px solid var(--color-border); font-size: 11.5px; font-weight: 600; color: var(--color-text); white-space: nowrap; }
+.kal-count-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* ---- Sel tabel jadi wadah netral (bukan kartu itu sendiri) — kartu mengambang
+   di dalamnya dengan margin 7px, jadi tidak memenuhi seluruh sel.
+   position:relative supaya .kal-span-line (penanda sesi berlanjut) bisa
+   diposisikan di dalamnya, terpisah dari kartunya sendiri. ---- */
+.kal-cell-wrap { padding: 7px !important; vertical-align: top !important; background: var(--color-surface); position: relative; }
+.kal-cell-wrap.is-today-col { background: var(--color-bg); }
+.kal-cell-empty { background: var(--color-surface); }
+.kal-cell-empty.is-today-col { background: var(--color-bg); }
+
+/* ---- Kartu jadwal mengambang: putih, shadow sangat tipis, sudut 12px, strip warna
+   kiri lembut. Tingginya MENGIKUTI ISI (bukan dipaksa memenuhi rowspan) — untuk
+   sesi yang berlangsung beberapa jam ke sekaligus, penandanya adalah
+   .kal-span-line di bawah, bukan kartu yang melar jadi kotak putih kosong. ---- */
+.kal-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 2px rgba(23, 36, 51, .05);
+  border-left: 3px solid var(--color-border);
+  padding: 10px 12px;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+}
+.kal-card.is-clickable { cursor: pointer; transition: box-shadow var(--transition), transform var(--transition); }
+.kal-card.is-clickable:hover { box-shadow: 0 3px 10px rgba(23, 36, 51, .09); transform: translateY(-1px); }
+.kal-card.is-clickable:focus-visible { outline: 2.5px solid var(--color-primary); outline-offset: 1px; }
+
+/* ---- Penanda "sesi ini berlanjut sampai jam ke-N" untuk rowspan > 1: garis
+   tipis warna aksen di belakang kartu, memanjang sampai bawah sel — bukan
+   kartu putihnya yang melar. Kartu tetap ringkas di atas. ---- */
+.kal-span-line { position: absolute; left: 14px; top: 44px; bottom: 7px; width: 3px; border-radius: 3px; opacity: .4; }
+.kal-span-label { position: absolute; left: 22px; bottom: 6px; font-size: 10px; font-weight: 700; opacity: .9; }
+
+.kal-card-title { font-weight: 700; font-size: 12.5px; color: var(--color-text); line-height: 1.35; padding-right: 18px; }
+.kal-card-sub { font-size: 11px; color: var(--navy-600); margin-top: 1px; }
+.kal-card-note { font-size: 10px; font-weight: 600; margin-top: 4px; line-height: 1.3; }
+.kal-card-icon {
+  position: absolute; top: 9px; right: 9px;
+  width: 16px; height: 16px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.kal-card-icon svg { width: 9px; height: 9px; stroke: currentColor; }
+
+/* ---- Garis "sekarang" (now-line), diposisikan lewat JS berdasarkan jam
+   sungguhan — cuma muncul kalau minggu yang dilihat memuat hari ini. ---- */
+.kal-now-line { position: absolute; left: 0; right: 0; border-top: 1.5px solid var(--color-danger); z-index: 6; pointer-events: none; opacity: .75; }
+.kal-now-badge {
+  position: absolute; left: -1px; top: -8px;
+  background: var(--color-danger); color: #fff;
+  font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Divider di dalam form, dipakai buat memisahkan bagian (mis. "Akun login"
+   di form Guru) — mengganti inline style border-top yang diulang di beberapa form. ---- */
+.form-divider { border-top: 1px solid var(--color-border); padding-top: 14px; margin-top: 4px; }
+.form-group label.label-icon { display: flex; align-items: center; gap: 6px; }
 
 .row-actions { display: flex; gap: 6px; justify-content: flex-end; }
 .btn-icon {
@@ -492,6 +1160,7 @@ table.table tbody tr:hover { background: var(--color-surface-alt); }
   transition: all var(--transition);
 }
 .btn-icon:hover { border-color: var(--color-primary); color: var(--color-primary); text-decoration: none; background: var(--color-primary-soft); }
+.btn-icon:focus-visible { outline: 2.5px solid var(--color-primary); outline-offset: 2px; }
 .btn-icon-danger:hover { border-color: var(--color-danger); color: var(--color-danger); background: var(--color-danger-soft); }
 
 .empty-state { text-align: center; padding: 44px 20px; color: var(--color-text-muted); }
@@ -505,6 +1174,275 @@ table.table tbody tr:hover { background: var(--color-surface-alt); }
   background-position: center;
 }
 .empty-state h3 { color: var(--navy-900); margin-bottom: 6px; }
+
+/* ============================================================================
+   NOTIFICATION BADGE — dipakai di menu sidebar (mis. "Tukar Jadwal" dengan
+   pengajuan Pending) supaya kelihatan ada yang butuh perhatian tanpa perlu
+   masuk ke halamannya dulu.
+   ============================================================================ */
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.nav-item.active .nav-badge { background: rgba(255,255,255,.28); }
+
+/* Dot indicator versi kecil (dipakai kalau cukup penanda "ada", tanpa angka) */
+.nav-dot {
+  margin-left: auto;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+   SKELETON LOADING & SPINNER — dipakai untuk konten yang dimuat lewat JS
+   (mis. daftar "guru yang sibuk" di form Cari Guru Pengganti/Tukar Jadwal).
+   ============================================================================ */
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface-alt) 25%, var(--color-border) 37%, var(--color-surface-alt) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+  border-radius: var(--radius-sm);
+  color: transparent !important;
+}
+@keyframes skeleton-loading { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+.spinner {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2.5px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin .65s linear infinite;
+  vertical-align: -3px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================================
+   SCROLLBAR TIPIS — kosmetik, table-wrap & sidebar terasa lebih rapi.
+   ============================================================================ */
+
+.table-wrap { scrollbar-width: thin; }
+.table-wrap::-webkit-scrollbar { height: 8px; }
+.table-wrap::-webkit-scrollbar-track { background: transparent; }
+.table-wrap::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 999px; }
+.table-wrap::-webkit-scrollbar-thumb:hover { background: var(--color-text-soft); }
+
+.app-sidebar { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
+.app-sidebar::-webkit-scrollbar { width: 6px; }
+.app-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 999px; }
+
+/* Kunci scroll body saat modal terbuka — mencegah halaman di belakang modal
+   ikut ter-scroll bersamaan (JS menambah/menghapus class ini di app.js). */
+body.modal-open { overflow: hidden; }
+
+/* Hormati preferensi pengguna yang mematikan animasi (aksesibilitas). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================================
+   KALENDER AKADEMIK
+   ============================================================================ */
+
+.ka-layout { display: flex; flex-direction: column; gap: 20px; }
+.ka-main { min-width: 0; }
+
+.ka-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  flex-wrap: wrap; margin-bottom: 14px;
+}
+.ka-toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ka-bulan-label { font-size: 15px; font-weight: 700; color: var(--color-text); white-space: nowrap; }
+.ka-bulan-ini-badge {
+  display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .02em;
+  color: var(--color-primary); background: var(--color-primary-soft);
+  padding: 2px 9px; border-radius: 999px;
+}
+
+.ka-view-tabs { display: inline-flex; background: var(--color-surface-alt); border-radius: var(--radius-sm); padding: 3px; gap: 2px; }
+.ka-view-tab {
+  padding: 6px 13px; border: none; background: transparent; border-radius: 6px;
+  font-size: 12.5px; font-weight: 600; color: var(--color-text-soft); cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.ka-view-tab.active { background: var(--color-surface); color: var(--color-primary); box-shadow: var(--shadow-sm); }
+
+.ka-filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.ka-filter-chip {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 7px; padding: 6px 13px 6px 10px;
+  border-radius: 999px; border: 1.5px solid var(--color-border); background: var(--color-surface);
+  font-size: 12px; font-weight: 600; color: var(--color-text-soft); cursor: pointer; user-select: none;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.ka-filter-chip:hover { border-color: var(--chip-warna, var(--color-border)); }
+.ka-filter-chip.is-on { background: var(--chip-soft, var(--color-surface-alt)); border-color: var(--chip-warna, var(--color-border)); color: var(--chip-warna, var(--color-text)); }
+/* Checkbox asli disembunyikan SECARA VISUAL SAJA (bukan display:none) supaya tetap
+   fungsional & bisa dijangkau keyboard/pembaca layar — status ON/OFF ditandai lewat
+   warna chip itu sendiri (lebih bersih daripada kotak centang mini warna-warni). */
+.ka-filter-chip input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.ka-filter-chip:focus-within { outline: 2px solid var(--chip-warna, var(--color-primary)); outline-offset: 1px; }
+.ka-filter-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--chip-warna, var(--color-border)); opacity: .45; transition: opacity var(--transition); }
+.ka-filter-chip.is-on .ka-filter-dot { opacity: 1; }
+
+/* ---- Grid kalender bulan: 7 kolom (Senin-Minggu), pakai CSS Grid supaya
+   otomatis pas dengan lebar layar (tidak perlu scroll horizontal seperti
+   tabel lebar), sel menyusut dengan rapi di layar sempit. ---- */
+.ka-grid-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--color-border); border-radius: var(--radius-md) var(--radius-md) 0 0; overflow: hidden; }
+.ka-grid-header > div { background: var(--color-surface-alt); padding: 9px 4px; text-align: center; font-size: 10.5px; font-weight: 700; color: var(--navy-900); letter-spacing: .03em; }
+.ka-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--color-border); border: 1px solid var(--color-border); border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md); overflow: hidden; }
+
+.ka-cell {
+  background: var(--color-surface); min-height: 96px; padding: 8px;
+  display: flex; flex-direction: column; gap: 3px; cursor: pointer;
+  transition: background var(--transition);
+}
+.ka-cell:hover { background: var(--color-surface-alt); }
+.ka-cell.is-selectable { user-select: none; } /* cegah teks ter-select tanpa sengaja saat menyeret */
+.ka-cell.is-selecting { background: var(--color-primary-soft); box-shadow: inset 0 0 0 1.5px var(--color-primary); }
+.ka-cell.is-outside { background: var(--color-bg); }
+.ka-cell.is-outside .ka-cell-num { color: var(--color-text-soft); opacity: .55; }
+.ka-cell.is-today { background: var(--color-primary-soft); }
+.ka-cell-num { font-size: 12px; font-weight: 700; color: var(--color-text); }
+.ka-cell-num.is-minggu { color: var(--color-danger); }
+.ka-cell.is-today .ka-cell-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%; background: var(--color-primary); color: #fff;
+}
+
+.ka-pill {
+  display: flex; align-items: center; gap: 4px; padding: 2px 5px;
+  border-radius: 4px; font-size: 10px; font-weight: 600; line-height: 1.4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  position: relative;
+}
+.ka-pill.is-editable { cursor: pointer; padding-right: 16px; }
+.ka-pill.is-editable:hover { filter: brightness(0.94); }
+.ka-pill-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.ka-pill-hapus {
+  position: absolute; right: 2px; top: 50%; transform: translateY(-50%);
+  display: none; align-items: center; justify-content: center;
+  width: 13px; height: 13px; border-radius: 50%; background: rgba(0,0,0,.12);
+  font-size: 10px; line-height: 1; color: inherit; cursor: pointer;
+}
+.ka-pill.is-editable:hover .ka-pill-hapus { display: flex; }
+.ka-pill-hapus:hover { background: var(--color-danger); color: #fff; }
+.ka-more { font-size: 10px; font-weight: 700; color: var(--color-text-soft); padding: 1px 5px; }
+
+/* ---- Sidebar: Timeline Akademik + Event Terdekat. ---- */
+.ka-side-card { margin-bottom: 16px; }
+.ka-side-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.ka-side-title h3 { margin: 0; font-size: 14px; }
+
+.ka-timeline { position: relative; padding-left: 18px; }
+.ka-timeline::before { content: ''; position: absolute; left: 3px; top: 4px; bottom: 4px; width: 1.5px; background: var(--color-border); }
+.ka-timeline-item { position: relative; padding-bottom: 18px; }
+.ka-timeline-item:last-child { padding-bottom: 0; }
+.ka-timeline-dot { position: absolute; left: -18px; top: 3px; width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 0 3px var(--color-surface); }
+.ka-timeline-tanggal { font-size: 10.5px; font-weight: 700; color: var(--color-text-soft); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 2px; }
+.ka-timeline-judul { font-size: 12.5px; font-weight: 600; color: var(--color-text); line-height: 1.35; margin-bottom: 4px; }
+
+.ka-upcoming-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--color-border); }
+.ka-upcoming-item:last-child { border-bottom: none; padding-bottom: 0; }
+.ka-upcoming-date {
+  flex-shrink: 0; width: 42px; text-align: center; border-radius: var(--radius-sm);
+  background: var(--color-surface-alt); padding: 5px 2px;
+}
+.ka-upcoming-date .d { font-size: 15px; font-weight: 700; color: var(--color-text); line-height: 1.1; }
+.ka-upcoming-date .m { font-size: 8.5px; font-weight: 700; color: var(--color-text-soft); text-transform: uppercase; }
+.ka-upcoming-judul { font-size: 12.5px; font-weight: 600; color: var(--color-text); margin-bottom: 3px; }
+.ka-upcoming-meta { font-size: 11px; color: var(--color-text-soft); display: flex; align-items: center; gap: 5px; }
+
+.ka-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; }
+.ka-legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.ka-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.ka-legend-label { font-weight: 700; color: var(--color-text); }
+.ka-legend-desc { color: var(--color-text-soft); }
+
+/* ---- Tampilan Minggu: sel jauh lebih tinggi karena cuma 7 kolom (bukan
+   35-42 seperti Bulan), jadi SEMUA event ditampilkan tanpa batas "+N",
+   pill-nya boleh melipat ke lebih dari 1 baris (bukan potong 1 baris). ---- */
+.ka-cell-minggu { min-height: 260px; align-items: stretch; }
+.ka-pill-minggu { white-space: normal; align-items: flex-start; padding: 5px 6px; font-size: 10.5px; }
+.ka-pill-minggu .ka-pill-dot { margin-top: 3px; }
+
+@media (min-width: 960px) {
+  .ka-layout { flex-direction: row; align-items: flex-start; }
+  .ka-main { flex: 1 1 auto; }
+  .ka-sidebar { flex: 0 0 300px; }
+  .ka-cell { min-height: 108px; padding: 8px; }
+}
+
+/* ============================================================================
+   PENILAIAN HARIAN — sengaja dibuat menonjol (border+aksen warna) supaya
+   guru TIDAK melewatkan section ini di form Jurnal yang cukup panjang.
+   ============================================================================ */
+
+.pnl-section {
+  margin: var(--space-5) calc(var(--space-5) * -1) calc(var(--space-5) * -1);
+  border-top: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  overflow: hidden;
+}
+.pnl-header {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: var(--space-5);
+  background: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-border);
+}
+.pnl-header-icon {
+  width: 38px; height: 38px; border-radius: var(--radius-sm); flex-shrink: 0;
+  background: var(--color-warning-soft);
+  display: flex; align-items: center; justify-content: center;
+}
+.pnl-header-icon svg { width: 19px; height: 19px; stroke: var(--color-warning); }
+.pnl-title { font-size: 15px; font-weight: 700; color: var(--color-text); display: flex; align-items: center; gap: 9px; flex-wrap: wrap; letter-spacing: -.005em; }
+.pnl-badge-opsional {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--color-text-muted); background: var(--color-surface);
+  padding: 2px 9px; border-radius: 999px; border: 1px solid var(--color-border-strong);
+}
+.pnl-badge-baru {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: #fff; background: var(--color-danger);
+  padding: 2px 9px; border-radius: 999px;
+}
+.pnl-desc { font-size: 12.5px; color: var(--color-text-soft); margin: 4px 0 0; line-height: 1.45; }
+
+.pnl-counter {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin: var(--space-4) var(--space-4) var(--space-3);
+  padding: 7px 13px;
+  background: var(--color-success-soft); color: var(--color-success);
+  border-radius: 999px; font-size: 12px; font-weight: 700;
+}
+
+table.pnl-table tbody tr.pnl-row.is-filled { background: var(--color-success-soft); }
+table.pnl-table tbody tr.pnl-row.is-filled:hover { background: var(--color-success-soft); filter: brightness(0.97); }
+
+.pnl-field-wrap { position: relative; min-width: 130px; }
+.pnl-select, .pnl-input-lainnya { width: 100%; font-size: 12.5px; padding: 7px 9px; min-height: 38px; }
 
 /* ============================================================================
    RESPONSIVE — desktop dock (≥960px)
@@ -528,5 +1466,24 @@ table.table tbody tr:hover { background: var(--color-surface-alt); }
 }
 
 @media (min-width: 620px) {
-  .card-grid.card-grid-5 { grid-template-columns: repeat(5, 1fr); }
+  .stat-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 }
+
+/* ============================================================================
+   MASTER TUJUAN PEMBELAJARAN (TP)
+   ============================================================================ */
+
+.tp-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; background: var(--color-surface-alt);
+  border-radius: var(--radius-sm); font-size: 13px;
+}
+.tp-item-nomor {
+  flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--color-primary-soft); color: var(--color-primary);
+  font-size: 10.5px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.tp-item-teks { flex: 1; min-width: 0; color: var(--color-text); }
+.tp-item-edit { align-items: center; gap: 8px; margin-top: -2px; margin-bottom: 0; }
+.tp-item-edit input { flex: 1; font-size: 13px; }

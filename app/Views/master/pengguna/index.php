@@ -19,31 +19,32 @@
   <button type="button" class="btn btn-primary" onclick="openModal('modalTambah')"><svg class="icon-sm" style="stroke:#fff"><use href="#i-plus"/></svg> Tambah pengguna</button>
 </div>
 
-<div class="table-wrap">
+<div class="table-wrap table-responsive-cards">
   <table class="table" id="tabelUser">
-    <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Profil guru</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+    <thead><tr><th style="width:50px">No.</th><th>Nama</th><th>Username</th><th>Role</th><th>Profil guru</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
     <tbody>
       <?php if (empty($users)) : ?>
-        <tr><td colspan="6"><div class="empty-state"><h3>Belum ada pengguna</h3></div></td></tr>
+        <tr><td colspan="7"><div class="empty-state"><h3>Belum ada pengguna</h3></div></td></tr>
       <?php else : ?>
-        <?php foreach ($users as $u) : ?>
+        <?php foreach ($users as $i => $u) : ?>
           <tr>
-            <td><?= esc($u['full_name']) ?></td>
-            <td><?= esc($u['username']) ?></td>
-            <td>
+            <td class="text-soft" data-label="">#<?= esc($i + 1) ?></td>
+            <td class="td-card-title"><?= esc($u['full_name']) ?></td>
+            <td data-label="Username"><?= esc($u['username']) ?></td>
+            <td data-label="Role">
               <?php foreach ($u['role_slugs'] as $r) : ?>
                 <span class="role-badge" style="margin-right:3px"><?= esc(role_label($r)) ?></span>
               <?php endforeach; ?>
             </td>
-            <td><?= $u['guru_nama'] ? esc($u['guru_nama']) : '<span class="text-soft">-</span>' ?></td>
-            <td>
+            <td data-label="Profil guru"><?= $u['guru_nama'] ? esc($u['guru_nama']) : '<span class="text-soft">-</span>' ?></td>
+            <td data-label="Status">
               <?php if ((int) $u['is_active'] === 1) : ?>
                 <span class="status-badge status-hadir">Aktif</span>
               <?php else : ?>
                 <span class="status-badge status-alpha">Nonaktif</span>
               <?php endif; ?>
             </td>
-            <td>
+            <td class="td-card-actions" data-label="">
               <div class="row-actions">
                 <button type="button" class="btn-icon" onclick='bukaEditUser(<?= json_encode($u) ?>)'><svg class="icon-sm"><use href="#i-edit"/></svg> Edit</button>
                 <form method="post" action="<?= base_url('master/pengguna/delete/' . $u['id']) ?>"
@@ -91,16 +92,16 @@
 
       <div class="form-group">
         <label>Role</label>
-        <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <div class="checkbox-group">
           <?php foreach ($roles as $r) : ?>
-            <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13.5px">
+            <label class="checkbox-label">
               <input type="checkbox" name="role_ids[]" value="<?= esc($r['id']) ?>"> <?= esc($r['name']) ?>
             </label>
           <?php endforeach; ?>
         </div>
       </div>
 
-      <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13.5px;margin-top:10px">
+      <label class="checkbox-label" style="margin-top:10px">
         <input type="checkbox" name="is_active" value="1" checked> Akun aktif (bisa login)
       </label>
 
@@ -143,9 +144,9 @@
 
       <div class="form-group">
         <label>Role</label>
-        <div id="edit_roles" style="display:flex;flex-wrap:wrap;gap:10px">
+        <div id="edit_roles" class="checkbox-group">
           <?php foreach ($roles as $r) : ?>
-            <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13.5px">
+            <label class="checkbox-label">
               <input type="checkbox" name="role_ids[]" value="<?= esc($r['id']) ?>" class="edit-role-cb"> <?= esc($r['name']) ?>
             </label>
           <?php endforeach; ?>
@@ -154,7 +155,7 @@
 
       <?php // Catatan: tautan ke profil guru sekarang dikelola dari menu Guru, bukan di sini. ?>
 
-      <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13.5px;margin-top:10px">
+      <label class="checkbox-label" style="margin-top:10px">
         <input type="checkbox" name="is_active" value="1" id="edit_is_active"> Akun aktif (bisa login)
       </label>
 

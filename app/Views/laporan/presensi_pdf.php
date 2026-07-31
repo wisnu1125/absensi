@@ -30,7 +30,7 @@
 
   <table>
     <thead>
-      <tr><th>Tanggal</th><th>Kelas</th><th>Mapel</th><th>Guru</th><th>NIS</th><th>Nama siswa</th><th>Status</th><th>Catatan</th></tr>
+      <tr><th>Tanggal</th><th>Kelas</th><th>Mapel</th><th>Guru</th><th>NIS</th><th>Nama siswa</th><th>Status</th><th>Catatan</th><th>Tukar</th></tr>
     </thead>
     <tbody>
       <?php foreach ($rows as $r) : ?>
@@ -43,10 +43,11 @@
           <td><?= esc($r['nama']) ?></td>
           <td><?= esc(ucfirst($r['status'])) ?></td>
           <td><?= esc($r['catatan'] ?? '') ?></td>
+          <td><?= ! empty($r['ditukar']) ? 'Ya (' . esc($r['hari_asli']) . ')' : '-' ?></td>
         </tr>
       <?php endforeach; ?>
       <?php if (empty($rows)) : ?>
-        <tr><td colspan="8">Tidak ada data pada periode/filter ini.</td></tr>
+        <tr><td colspan="9">Tidak ada data pada periode/filter ini.</td></tr>
       <?php endif; ?>
     </tbody>
   </table>

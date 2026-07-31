@@ -7,80 +7,43 @@ use CodeIgniter\Config\BaseConfig;
 class Security extends BaseConfig
 {
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Protection Method
-     * --------------------------------------------------------------------------
-     *
-     * Protection Method for Cross Site Request Forgery protection.
-     *
-     * @var string 'cookie' or 'session'
+     * CSRF Protection Method — 'cookie' (bawaan CI4).
      */
     public string $csrfProtection = 'cookie';
 
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Token Randomization
-     * --------------------------------------------------------------------------
-     *
-     * Randomize the CSRF Token for added security.
+     * Randomisasi token tambahan — dibiarkan bawaan (nonaktif).
      */
     public bool $tokenRandomize = false;
 
-    /**
-     * --------------------------------------------------------------------------
-     * CSRF Token Name
-     * --------------------------------------------------------------------------
-     *
-     * Token name for Cross Site Request Forgery protection.
-     */
     public string $tokenName = 'csrf_test_name';
-
-    /**
-     * --------------------------------------------------------------------------
-     * CSRF Header Name
-     * --------------------------------------------------------------------------
-     *
-     * Header name for Cross Site Request Forgery protection.
-     */
     public string $headerName = 'X-CSRF-TOKEN';
-
-    /**
-     * --------------------------------------------------------------------------
-     * CSRF Cookie Name
-     * --------------------------------------------------------------------------
-     *
-     * Cookie name for Cross Site Request Forgery protection.
-     */
     public string $cookieName = 'csrf_cookie_name';
-
-    /**
-     * --------------------------------------------------------------------------
-     * CSRF Expires
-     * --------------------------------------------------------------------------
-     *
-     * Expiration time for Cross Site Request Forgery protection cookie.
-     *
-     * Defaults to two hours (in seconds).
-     */
     public int $expires = 7200;
 
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Regenerate
-     * --------------------------------------------------------------------------
+     * CSRF Regenerate — SENGAJA dimatikan (bawaan CI4: true).
      *
-     * Regenerate CSRF Token on every submission.
+     * Bawaannya, token CSRF diregenerasi di SETIAP request yang lolos
+     * validasi. Ini pengamanan ekstra thd serangan BREACH, tapi utk
+     * aplikasi internal sekolah ber-login ini (bukan aplikasi publik
+     * berisiko tinggi), efeknya lebih banyak merugikan daripada
+     * membantu: SETIAP form yang masih terbuka di halaman (mis. modal
+     * Tambah/Edit di Grid Jadwal) langsung punya token BASI begitu ada
+     * SATU request lain berhasil, dan submission berikutnya ditolak
+     * validasi CSRF secara diam-diam — inilah akar bug "klik simpan
+     * tidak menyimpan" / "modal tidak mau hilang" yang dilaporkan.
+     *
+     * Dengan token tetap sama selama SATU SESI LOGIN (bukan per-request),
+     * seluruh kelas bug token-basi ini hilang — jauh lebih andal utk
+     * alur AJAX (Grid Jadwal, dan fitur AJAX serupa di masa depan)
+     * dibanding terus-menerus menyinkronkan token lewat JavaScript
+     * setiap kali ada respons dari server.
      */
-    public bool $regenerate = true;
+    public bool $regenerate = false;
 
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Redirect
-     * --------------------------------------------------------------------------
-     *
-     * Redirect to previous page with error on failure.
-     *
-     * @see https://codeigniter4.github.io/userguide/libraries/security.html#redirection-on-failure
+     * CSRF Redirect — bawaan (redirect hanya di production).
      */
     public bool $redirect = (ENVIRONMENT === 'production');
 }

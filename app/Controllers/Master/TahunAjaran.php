@@ -73,6 +73,8 @@ class TahunAjaran extends BaseController
         $ok = $this->semesterModel->insert([
             'tahun_ajaran_id' => (int) $this->request->getPost('tahun_ajaran_id'),
             'nama'            => $this->request->getPost('nama'),
+            'tanggal_mulai'   => $this->request->getPost('tanggal_mulai') ?: null,
+            'tanggal_selesai' => $this->request->getPost('tanggal_selesai') ?: null,
             'is_active'       => 0,
         ]);
 
@@ -83,6 +85,36 @@ class TahunAjaran extends BaseController
         (new AuditLogger())->log('tambah_semester', 'Menambah semester');
 
         return redirect()->to('/master/tahun-ajaran')->with('message', 'Semester berhasil ditambahkan.');
+    }
+
+    /**
+     * Semester sudah ada sebelum fitur tanggal berlaku ini dibuat tidak punya
+     * cara diedit — method ini mengisinya (atau mengubahnya kalau perlu).
+     */
+    public function updateSemester()
+    {
+        $id = (int) $this->request->getPost('id');
+
+        $tanggalMulai   = $this->request->getPost('tanggal_mulai') ?: null;
+        $tanggalSelesai = $this->request->getPost('tanggal_selesai') ?: null;
+
+        if ($tanggalMulai && $tanggalSelesai && $tanggalSelesai < $tanggalMulai) {
+            return redirect()->to('/master/tahun-ajaran')->with('error', 'Tanggal selesai tidak boleh sebelum tanggal mulai.');
+        }
+
+        $ok = $this->semesterModel->update($id, [
+            'nama'            => $this->request->getPost('nama'),
+            'tanggal_mulai'   => $tanggalMulai,
+            'tanggal_selesai' => $tanggalSelesai,
+        ]);
+
+        if (! $ok) {
+            return redirect()->to('/master/tahun-ajaran')->with('error', implode(' ', $this->semesterModel->errors()));
+        }
+
+        (new AuditLogger())->log('ubah_semester', 'Mengubah semester #' . $id . ' (tanggal berlaku ' . ($tanggalMulai ?? '-') . ' s/d ' . ($tanggalSelesai ?? '-') . ')');
+
+        return redirect()->to('/master/tahun-ajaran')->with('message', 'Semester berhasil diperbarui.');
     }
 
     public function setActiveSemester($id)

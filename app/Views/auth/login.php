@@ -7,7 +7,7 @@
   <link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="<?= base_url('assets/css/app.css') ?>?v=4">
+  <link rel="stylesheet" href="<?= base_url('assets/css/app.css') ?>?v=43">
 </head>
 <body class="auth-body">
   <?= view('layouts/_icons') ?>

@@ -10,6 +10,7 @@ class KelasModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = false;
+    protected $useSoftDeletes = true;
     protected $allowedFields = ['tahun_ajaran_id', 'nama_kelas', 'tingkat'];
 
     protected $validationRules = [
@@ -20,7 +21,8 @@ class KelasModel extends Model
 
     public function getWithTahunAjaran(): array
     {
-        return $this->select('kelas.*, tahun_ajaran.nama as nama_tahun_ajaran, guru.nama as nama_wali_kelas, wali_kelas.guru_id as wali_kelas_guru_id')
+        return $this->select('kelas.*, tahun_ajaran.nama as nama_tahun_ajaran, guru.nama as nama_wali_kelas, wali_kelas.guru_id as wali_kelas_guru_id,
+                (SELECT COUNT(*) FROM siswa WHERE siswa.kelas_id = kelas.id AND siswa.deleted_at IS NULL AND siswa.status = "aktif") as jumlah_siswa')
             ->join('tahun_ajaran', 'tahun_ajaran.id = kelas.tahun_ajaran_id')
             ->join('wali_kelas', 'wali_kelas.kelas_id = kelas.id', 'left')
             ->join('guru', 'guru.id = wali_kelas.guru_id', 'left')

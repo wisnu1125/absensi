@@ -10,6 +10,7 @@ class MataPelajaranModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = false;
+    protected $useSoftDeletes = true;
     protected $allowedFields = ['kode', 'nama'];
 
     protected $validationRules = [

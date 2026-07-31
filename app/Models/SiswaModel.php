@@ -10,12 +10,21 @@ class SiswaModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = true;
+    protected $useSoftDeletes = true;
     protected $allowedFields = [
         'nis', 'nama', 'jenis_kelamin', 'kelas_id', 'tanggal_lahir',
         'alamat', 'nama_ortu', 'no_hp_ortu', 'status',
     ];
 
     protected $validationRules = [
+        // 'id' WAJIB ada di sini (bukan cuma di allowedFields) — sejak CI4 4.3.5,
+        // placeholder {id} di aturan is_unique TIDAK akan diganti kalau field id
+        // tidak punya aturan validasinya sendiri. Tanpa ini, is_unique akan selalu
+        // menganggap NIS "sudah dipakai" bahkan saat mengedit siswa yang SAMA
+        // tanpa mengubah NIS-nya sama sekali (placeholder gagal diganti -> jadi
+        // literal string "{id}" -> query is_unique salah, selalu menemukan baris
+        // itu sendiri sebagai "duplikat").
+        'id'            => 'permit_empty|is_natural_no_zero',
         'nis'           => 'required|max_length[30]|is_unique[siswa.nis,id,{id}]',
         'nama'          => 'required|max_length[150]',
         'jenis_kelamin' => 'required|in_list[L,P]',
@@ -30,7 +39,7 @@ class SiswaModel extends Model
 
     public function getWithKelas(?int $kelasId = null): array
     {
-        $builder = $this->select('siswa.*, kelas.nama_kelas')
+        $builder = $this->select('siswa.*, kelas.nama_kelas, kelas.tingkat')
             ->join('kelas', 'kelas.id = siswa.kelas_id', 'left');
 
         if ($kelasId) {

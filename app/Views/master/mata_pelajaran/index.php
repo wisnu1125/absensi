@@ -15,10 +15,11 @@
   <button type="button" class="btn btn-primary" onclick="openModal('modalTambah')"><svg class="icon-sm" style="stroke:#fff"><use href="#i-plus"/></svg> Tambah mata pelajaran</button>
 </div>
 
-<div class="table-wrap">
+<div class="table-wrap table-responsive-cards">
   <table class="table" id="tabelMapel">
     <thead>
       <tr>
+        <th style="width:50px">No.</th>
         <th>Kode</th>
         <th>Nama mata pelajaran</th>
         <th style="text-align:right">Aksi</th>
@@ -26,18 +27,19 @@
     </thead>
     <tbody>
       <?php if (empty($items)) : ?>
-        <tr><td colspan="3">
+        <tr><td colspan="4">
           <div class="empty-state">
             <h3>Belum ada mata pelajaran</h3>
             <p>Klik "Tambah mata pelajaran" untuk menambahkan data pertama.</p>
           </div>
         </td></tr>
       <?php else : ?>
-        <?php foreach ($items as $row) : ?>
+        <?php foreach ($items as $i => $row) : ?>
           <tr>
-            <td><?= esc($row['kode']) ?></td>
-            <td><?= esc($row['nama']) ?></td>
-            <td>
+            <td class="text-soft" data-label="">#<?= esc($i + 1) ?></td>
+            <td data-label="Kode"><?= esc($row['kode']) ?></td>
+            <td class="td-card-title"><?= esc($row['nama']) ?></td>
+            <td class="td-card-actions" data-label="">
               <div class="row-actions">
                 <button type="button" class="btn-icon"
                   onclick="fillEditMapel('<?= esc($row['id'], 'js') ?>','<?= esc($row['kode'], 'js') ?>','<?= esc($row['nama'], 'js') ?>')">

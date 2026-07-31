@@ -11,7 +11,7 @@
   </p>
 </div>
 
-<form method="post" action="<?= base_url('mengajar/presensi/' . $jadwal['id']) ?>">
+<form method="post" action="<?= base_url($formAction ?? ('mengajar/presensi/' . $jadwal['id'])) ?>">
   <?= csrf_field() ?>
 
   <div class="toolbar">
@@ -19,10 +19,11 @@
     <button type="button" class="btn btn-outline" onclick="hadirSemua()"><svg class="icon-sm"><use href="#i-check-circle"/></svg> Hadir semua</button>
   </div>
 
-  <div class="table-wrap">
+  <div class="table-wrap table-responsive-cards">
     <table class="table" id="tabelPresensi">
       <thead>
         <tr>
+          <th style="width:50px">No.</th>
           <th>Siswa</th>
           <th>Status kehadiran</th>
           <th>Catatan (opsional)</th>
@@ -30,20 +31,21 @@
       </thead>
       <tbody>
         <?php if (empty($siswa)) : ?>
-          <tr><td colspan="3">
+          <tr><td colspan="4">
             <div class="empty-state">
               <h3>Belum ada siswa di kelas ini</h3>
               <p>Tambahkan data siswa lewat menu Siswa terlebih dahulu.</p>
             </div>
           </td></tr>
         <?php else : ?>
-          <?php foreach ($siswa as $s) :
+          <?php foreach ($siswa as $i => $s) :
               $statusSaatIni = $existing[$s['id']]['status'] ?? 'hadir';
               $catatanSaatIni = $existing[$s['id']]['catatan'] ?? '';
           ?>
             <tr>
-              <td><?= esc($s['nama']) ?><div class="text-soft"><?= esc($s['nis']) ?></div></td>
-              <td>
+              <td class="text-soft" data-label="">#<?= esc($i + 1) ?></td>
+              <td class="td-card-title"><?= esc($s['nama']) ?><div class="text-soft" style="font-weight:400;font-size:12px"><?= esc($s['nis']) ?></div></td>
+              <td class="td-stack" data-label="Status kehadiran">
                 <div class="status-pills" data-siswa="<?= esc($s['id']) ?>">
                   <?php foreach (['hadir' => 'Hadir', 'sakit' => 'Sakit', 'izin' => 'Izin', 'terlambat' => 'Terlambat', 'alpha' => 'Alpha'] as $val => $label) : ?>
                     <label class="pill pill-<?= $val ?>">
@@ -53,7 +55,7 @@
                   <?php endforeach; ?>
                 </div>
               </td>
-              <td>
+              <td class="td-stack" data-label="Catatan">
                 <input type="text" name="catatan[<?= esc($s['id']) ?>]" value="<?= esc($catatanSaatIni) ?>" placeholder="-" class="catatan-input">
               </td>
             </tr>
@@ -64,22 +66,11 @@
   </div>
 
   <?php if (! empty($siswa)) : ?>
-    <div style="margin-top:20px;display:flex;justify-content:flex-end">
+    <div class="form-actions sticky-action-mobile">
       <button type="submit" class="btn btn-primary">Simpan &amp; lanjut ke jurnal <svg class="icon-sm" style="stroke:#fff"><use href="#i-chevron-right"/></svg></button>
     </div>
   <?php endif; ?>
 </form>
-
-<style>
-  .status-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-  .pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--color-border); cursor: pointer; font-size: 12.5px; font-weight: 500; color: var(--color-text-muted); }
-  .pill input { position: absolute; opacity: 0; width: 0; height: 0; }
-  .pill-hadir.is-checked { background: var(--color-success-soft); border-color: var(--color-success); color: var(--color-success); }
-  .pill-sakit.is-checked { background: var(--color-info-soft); border-color: var(--color-info); color: var(--color-info); }
-  .pill-izin.is-checked, .pill-terlambat.is-checked { background: var(--color-warning-soft); border-color: var(--color-warning); color: var(--color-warning); }
-  .pill-alpha.is-checked { background: var(--color-danger-soft); border-color: var(--color-danger); color: var(--color-danger); }
-  .catatan-input { width: 100%; min-width: 140px; padding: 7px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; }
-</style>
 
 <script>
 // Menandai pill yang sedang dipilih dengan class 'is-checked' (dipakai untuk styling,
